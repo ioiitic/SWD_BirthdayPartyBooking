@@ -9,5 +9,6 @@ namespace Repository
 {
     public interface IOrderDetailRepo : IBaseRepo<OrderDetail>
     {
+        Task<List<OrderDetail>> GetOrderDetailByOrderID(Guid id);
     }
 }

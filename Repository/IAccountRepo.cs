@@ -9,5 +9,9 @@ namespace Repository
 {
     public interface IAccountRepo : IBaseRepo<Account>
     {
+        Account CheckLogin(string Email, string Password);
+        bool CheckEmailExist(string email);
+        List<Account> GetAllActiveHosts();
+        Task Remove(Guid Id);
     }
 }

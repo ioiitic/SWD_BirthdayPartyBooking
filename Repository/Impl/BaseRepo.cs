@@ -59,6 +59,7 @@ namespace Repository.Impl
         public void Insert(T obj)
         {
             _context.Set<T>().Add(obj);
+            _context.SaveChanges();
         }
 
         public void Update(T obj)
