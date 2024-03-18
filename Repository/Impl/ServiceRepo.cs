@@ -9,19 +9,17 @@ using System.Threading.Tasks;
 namespace Repository.Impl
 {
     public class ServiceRepo : BaseRepo<Service>, IServiceRepo
-    {
-        public BirthdayPartyBookingContext _context;
+    {     
         public ServiceRepo(BirthdayPartyBookingContext context)
             : base(context)
         {
-            _context = context;
         }
         public List<Service> GetValidServices(Guid Id)
         {
             List<Service> services = new List<Service>();
             try
             {
-                services = _context.Services.AsNoTracking().Where(p => p.HostId == Id && p.DeleteFlag == 0).Include(s => s.ServiceType).OrderBy(s => s.ServiceTypeId).ToList();
+                services = base._context.Services.AsNoTracking().Where(p => p.HostId == Id && p.DeleteFlag == 0).Include(s => s.ServiceType).OrderBy(s => s.ServiceTypeId).ToList();
             }
             catch (Exception ex)
             {
@@ -31,14 +29,14 @@ namespace Repository.Impl
             return services;
         }
 
-        public async Task<List<Service>> GetAllServicesByHostID(string Id)
+        public List<Service> GetAllServicesByHostID(string Id)
         {
             List<Service> services = new List<Service>();
             try
             {
-                services = await _context.Services.AsNoTracking().Where(s => s.HostId.ToString() == Id && s.DeleteFlag == 0)
+                services = base._context.Services.AsNoTracking().Where(s => s.HostId.ToString() == Id && s.DeleteFlag == 0)
                 .Include(s => s.Host)
-                .Include(s => s.ServiceType).ToListAsync();
+                .Include(s => s.ServiceType).ToList();
             }
             catch (Exception ex)
             {
@@ -67,7 +65,7 @@ namespace Repository.Impl
             List<ServiceType> serviceTypes = new List<ServiceType>();
             try
             {
-                serviceTypes = _context.ServiceTypes.AsNoTracking().ToList();
+                serviceTypes = base._context.ServiceTypes.AsNoTracking().ToList();
             }
             catch (Exception ex)
             {
@@ -81,7 +79,7 @@ namespace Repository.Impl
             Service service = new Service();
             try
             {
-                service = _context.Services.AsNoTracking().FirstOrDefault(s => s.Id == Id);
+                service = base._context.Services.AsNoTracking().FirstOrDefault(s => s.Id == Id);
             }
             catch (Exception ex)
             {
@@ -91,14 +89,14 @@ namespace Repository.Impl
             return service;
         }
 
-        public async Task<Service> GetServiceByServiceIDAndHostID(Guid Id, string HostID)
+        public Service GetServiceByServiceIDAndHostID(Guid Id, string HostID)
         {
             Service service = new Service();
             try
             {
-                service = await _context.Services.AsNoTracking().Where(s => s.HostId.ToString() == HostID && s.DeleteFlag == 0)
+                service =  base._context.Services.AsNoTracking().Where(s => s.HostId.ToString() == HostID && s.DeleteFlag == 0)
                 .Include(s => s.Host)
-                .Include(s => s.ServiceType).FirstOrDefaultAsync(m => m.Id == Id);
+                .Include(s => s.ServiceType).FirstOrDefault(m => m.Id == Id);
             }
             catch (Exception ex)
             {
@@ -108,18 +106,18 @@ namespace Repository.Impl
             return service;
         }
 
-        public async Task<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceTypeId)
+        public IEnumerable<Object> GetServiceByHostIDAndServiceType(Guid hostId, string serviceTypeId)
         {
             try
             {
-                return await _context.Services.Where(s => s.HostId == hostId && s.DeleteFlag == 0 && s.ServiceType.Name == serviceTypeId)
+                return  _context.Services.Where(s => s.HostId == hostId && s.DeleteFlag == 0 && s.ServiceType.Name == serviceTypeId)
                                                 .Select(s => new
                                                 {
                                                     s.Id,
                                                     s.Name,
                                                     s.Description,
                                                     s.Price
-                                                }).ToListAsync();
+                                                }).ToList();
             }
             catch (Exception ex)
             {
@@ -153,6 +151,7 @@ namespace Repository.Impl
             }
             return serviceType;
         }
+
         //public async Task AddNew(Service service)
         //{
         //    try
@@ -189,7 +188,7 @@ namespace Repository.Impl
         //    }
         //}
 
-        public async Task Remove(Guid Id)
+        public bool Remove(Guid Id)
         {
             try
             {
@@ -197,8 +196,7 @@ namespace Repository.Impl
                 if (_service != null)
                 {
                     _service.DeleteFlag = 1;
-                    _context.Entry<Service>(_service).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    _context.Entry<Service>(_service).State = EntityState.Modified;                  
                 }
                 else
                 {
@@ -209,6 +207,12 @@ namespace Repository.Impl
             {
                 throw new Exception(ex.Message);
             }
+            return Save();
+        }
+        public bool Save()
+        {
+            var saved = base._context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

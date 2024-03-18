@@ -9,10 +9,11 @@ namespace Repository
 {
     public interface IOrderRepo : IBaseRepo<Order>
     {
-        List<Order> GetOrderByHostID(string id);
-        List<Order> GetOrderByCustomerID(string id);
+        List<Order> GetOrderByHostID(Guid id);
+        List<Order> GetOrderByCustomerID(Guid id);
         Order GetOrderByOrderID(Guid id);
-        bool CheckOrderExist(Order order, string Id);
-        void Remove(Guid Id);
+        bool CheckOrderExist(Order order, Guid Id);
+        bool Remove(Guid Id);
+        bool Save();
     }
 }

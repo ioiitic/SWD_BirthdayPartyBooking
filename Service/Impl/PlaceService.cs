@@ -10,19 +10,17 @@ namespace Services.Impl
 {
     public class PlaceService : BaseService<Place>, IPlaceService
     {
-        private IPlaceRepo placeRepo;
         public PlaceService(IRepoWrapper repoWrapper, IPlaceRepo placeRepo)
             : base(repoWrapper)
         {
-            this.placeRepo=placeRepo;
         }
 
-        public List<Place> GetAllPlace(Guid Id) => placeRepo.GetAllPlace(Id);
+        public List<Place> GetAllPlace(Guid Id) => _repoWrapper.Place.GetAllPlace(Id);
 
-        public Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id) => placeRepo.GetAllPlaceByHostID(Id);
+        public IEnumerable<Place> GetAllPlaceByHostID(Guid Id) => _repoWrapper.Place.GetAllPlaceByHostID(Id);
 
-        public Place GetPlaceByPlaceID(Guid placeId) => placeRepo.GetPlaceByPlaceID(placeId);
+        public Place GetPlaceByPlaceID(Guid placeId) => _repoWrapper.Place.GetPlaceByPlaceID(placeId);
 
-        public Task Remove(Guid Id) => placeRepo.Remove(Id);
+        public bool Remove(Guid Id) => _repoWrapper.Place.Remove(Id);
     }
 }

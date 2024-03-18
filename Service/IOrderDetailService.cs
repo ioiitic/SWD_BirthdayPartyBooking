@@ -9,6 +9,6 @@ namespace Services
 {
     public interface IOrderDetailService : IBaseService<OrderDetail>
     {
-        Task<List<OrderDetail>> GetOrderDetailByOrderID(Guid id);
+        List<OrderDetail> GetOrderDetailByOrderID(Guid id);
     }
 }

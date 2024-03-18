@@ -10,19 +10,17 @@ namespace Repository.Impl
 {
     public class OrderRepo : BaseRepo<Order>, IOrderRepo
     {
-        private BirthdayPartyBookingContext _context;
         public OrderRepo(BirthdayPartyBookingContext context)
             : base(context)
         {
-            _context = context;
         }
         
-        public List<Order> GetOrderByHostID(string id)
+        public List<Order> GetOrderByHostID(Guid id)
         {
             List<Order> orders;
             try
             {
-                orders =  _context.Orders.AsNoTracking().Where(o => o.HostId.ToString() == id).ToList();
+                orders =  _context.Orders.AsNoTracking().Where(o => o.HostId == id).ToList();
             }
             catch (Exception ex)
             {
@@ -30,12 +28,12 @@ namespace Repository.Impl
             }
             return orders;
         }
-        public List<Order> GetOrderByCustomerID(string id)
+        public List<Order> GetOrderByCustomerID(Guid id)
         {
             List<Order> orders;
             try
             {
-                orders =  _context.Orders.AsNoTracking().Where(o => o.GuestId.ToString() == id).ToList();
+                orders =  _context.Orders.AsNoTracking().Where(o => o.GuestId == id).ToList();
             }
             catch (Exception ex)
             {
@@ -57,12 +55,12 @@ namespace Repository.Impl
             return orders;
         }
 
-        public bool CheckOrderExist(Order order, string Id)
+        public bool CheckOrderExist(Order order, Guid Id)
         {
             bool check = false;
             try
             {
-                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId.ToString() == Id && o.PlaceId == order.PlaceId);
+                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == Id && o.PlaceId == order.PlaceId);
             }
             catch (Exception ex)
             {
@@ -107,7 +105,7 @@ namespace Repository.Impl
         //    }
         //}
         #endregion
-        public void Remove(Guid Id)
+        public bool Remove(Guid Id)
         {
             try
             {
@@ -116,7 +114,6 @@ namespace Repository.Impl
                 {
                     _order.DeleteFlag = 1;
                     _context.Entry<Order>(_order).State = EntityState.Modified;
-                    _context.SaveChanges();
                 }
                 else
                 {
@@ -127,6 +124,13 @@ namespace Repository.Impl
             {
                 throw new Exception(ex.Message);
             }
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = base._context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

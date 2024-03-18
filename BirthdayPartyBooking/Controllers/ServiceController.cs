@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Services.Impl;
+using System.Security.Principal;
 
 namespace BirthdayPartyBooking.Controllers
 {
@@ -13,25 +14,22 @@ namespace BirthdayPartyBooking.Controllers
     public class ServiceController : ControllerBase
     {
         private IServiceWrapper _service;
-        private IServiceService _serviceService;
 
         public ServiceController(IServiceWrapper service, IServiceService serviceService)
         {
             _service = service;
-            _serviceService=serviceService;
         }
 
         [HttpGet("[action]")]
         [ProducesResponseType(200, Type = typeof(Service))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetServiceByType(Guid hostId, string ServiceType)
+        public IActionResult GetServiceByType(Guid hostId, string ServiceType)
         {
-            //var serviceType = _serviceService.GetServiceTypeIdByServiceName(ServiceType);
-            //if (serviceType==null)
-            //{
-            //    return NotFound();
-            //}
-            var services = await _serviceService.GetServiceByHostIDAndServiceType(hostId, ServiceType);
+            if (ServiceType==null)
+            {
+                return NotFound();
+            }
+            var services = _service.Service.GetServiceByHostIDAndServiceType(hostId, ServiceType);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -80,7 +78,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkservices = _serviceService.GetServiceByServiceID(serviceId);
+            var checkservices = _service.Service.GetServiceByServiceID(serviceId);
             if (checkservices==null)
             {
                 return NotFound();
@@ -102,7 +100,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkservices = _serviceService.GetServiceByServiceID(serviceId);
+            var checkservices = _service.Service.GetServiceByServiceID(serviceId);
             if (checkservices==null)
             {
                 return NotFound();
@@ -111,8 +109,12 @@ namespace BirthdayPartyBooking.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _serviceService.Remove(serviceId);
-            return Ok("Successfully updated");
+            if (!_service.Service.Remove(serviceId))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving.");
+                return StatusCode(500, ModelState);
+            }
+            return Ok("Successfully removed.");
         }
     }
 }

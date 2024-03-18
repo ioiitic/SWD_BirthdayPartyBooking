@@ -10,7 +10,7 @@ namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class OrderDetailController
+    public class OrderDetailController : ControllerBase
     {
         private IServiceWrapper _service;
         private IOrderDetailService _orderDetailService;
@@ -22,17 +22,16 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<List<OrderDetail>> GetAllOrderDetailOfOrder(Guid Id) 
+        [ProducesResponseType(200, Type = typeof(OrderDetail))]
+        [ProducesResponseType(400)]
+        public IActionResult GetOrderDetail(Guid orderId)
         {
-            return await _orderDetailService.GetOrderDetailByOrderID(Id);
-            
-        }
+            var orderDetail = _service.OrderDetail.GetOrderDetailByOrderID(orderId);
 
-        [HttpPut("[action]")]
-        public void InsertAccount(Order order)
-        {
-            _service.Order.Insert(order);
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            return Ok(orderDetail);
+        }
     }
 }
