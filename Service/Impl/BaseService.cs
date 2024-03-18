@@ -12,7 +12,7 @@ namespace Services.Impl
 {
     public abstract class BaseService<T> : IBaseService<T> where T : class
     {
-        private IRepoWrapper _repoWrapper;
+        protected IRepoWrapper _repoWrapper;
 
         public BaseService(IRepoWrapper repoWrapper)
         {
