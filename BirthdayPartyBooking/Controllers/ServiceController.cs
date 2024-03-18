@@ -4,12 +4,13 @@ using Services;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using Services.Impl;
 
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class ServiceController
+    [Route("api/[controller]")]
+    public class ServiceController : ControllerBase
     {
         private IServiceWrapper _service;
         private IServiceService _serviceService;
@@ -21,78 +22,97 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<Service> GetAllservices()
+        [ProducesResponseType(200, Type = typeof(Service))]
+        [ProducesResponseType(400)]
+        public IActionResult GetServiceByType(Guid hostId, string ServiceType)
         {
-            var services = _service.Service.GetAll();
+            //var serviceType = _serviceService.GetServiceTypeIdByServiceName(ServiceType);
+            //if (serviceType==null)
+            //{
+            //    return NotFound();
+            //}
+            var services = _serviceService.GetServiceByHostIDAndServiceType(hostId, ServiceType);
 
-            return services;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(services);
         }
 
-        [HttpGet("[action]")]
-        public IEnumerable<Service> GetAllServiceIncludeChildren(string[] children)
+        [HttpPost("[action]")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateService(Guid hostID, Guid serviceTypeId, [FromBody] Service service)
         {
-            var services = _service.Service.GetAll(children);
+            if (service == null || hostID == Guid.Empty)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return services;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            service.DeleteFlag = 0;
+            service.HostId = hostID;
+            service.ServiceTypeId = serviceTypeId;
+            try
+            {
+                _service.Service.Insert(service);
+            }
+            catch
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok("Successfully created");
         }
 
-        //[HttpGet("[action]")]
-        //public IEnumerable<service> GetAllservice([FromQuery] int deleteFlag)
-        //{
-        //    var services = _service.service.GetAll(a => a.DeleteFlag == deleteFlag);
-
-        //    return services;
-        //}
-
-        [HttpGet("[action]")]
-        public List<Service> GetValidServices(Guid Id)
+        [HttpPut("[action]/{serviceId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateService(Guid serviceId, [FromBody] Service service)
         {
-            var services = _serviceService.GetValidServices(Id);
+            if (service == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (serviceId != service.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkservices = _serviceService.GetServiceByServiceID(serviceId);
+            if (checkservices==null)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            return services;
-        }
-
-        [HttpGet("[action]")]
-        public async Task<List<Service>> GetAllServicesByHostID(string Id)
-        {
-           return await _serviceService.GetAllServicesByHostID(Id);
-                      
-        }
-
-        [HttpGet("[action]")]
-        public List<ServiceType> GetAllServiceTypes()
-        {
-            var services = _serviceService.GetAllServiceTypes();
-
-            return services;
-        }
-
-        [HttpGet("[action]")]
-        public async Task<Service> GetServiceByServiceIDAndHostID(Guid Id, string HostID)
-        {
-            return await _serviceService.GetServiceByServiceIDAndHostID(Id, HostID);
-        }
-
-        [HttpGet("[action]")]
-        public ServiceType GetServiceTypeByServiceTypeID(Guid Id)
-        {
-           return _serviceService.GetServiceTypeByServiceTypeID(Id);    
-        }
-        [HttpPut("[action]")]
-        public void InsertService(Service service)
-        {
-            _service.Service.Insert(service);
-        }
-        [HttpPut("[action]")]
-        public void Updateservice(Service service)
-        {
             _service.Service.Update(service);
+            return Ok("Successfully updated");
         }
 
-        [HttpDelete("[action]")]
-        public async Task Remove(Guid Id)
+        [HttpDelete("[action]/{serviceId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteService(Guid serviceId)
         {
-            await _serviceService.Remove(Id);
+            if (serviceId == Guid.Empty)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkservices = _serviceService.GetServiceByServiceID(serviceId);
+            if (checkservices==null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _serviceService.Remove(serviceId);
+            return Ok("Successfully updated");
         }
     }
 }

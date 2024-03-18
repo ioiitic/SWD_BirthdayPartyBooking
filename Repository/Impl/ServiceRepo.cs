@@ -108,6 +108,37 @@ namespace Repository.Impl
             return service;
         }
 
+        public async Task<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceTypeId)
+        {
+            try
+            {
+                return await _context.Services.Where(s => s.HostId == hostId && s.DeleteFlag == 0 && s.ServiceType.Name == serviceTypeId)
+                                                .Select(s => new
+                                                {
+                                                    s.Id,
+                                                    s.Name,
+                                                    s.Description,
+                                                    s.Price
+                                                }).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public Guid GetServiceTypeIdByServiceName(string serviceName)
+        {
+            try
+            {
+                var serviceType = _context.ServiceTypes.AsNoTracking().FirstOrDefault(s => s.Name.ToLower() == serviceName.ToLower());
+                return serviceType.Id;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public ServiceType GetServiceTypeByServiceTypeID(Guid Id)
         {
             ServiceType serviceType = new ServiceType();

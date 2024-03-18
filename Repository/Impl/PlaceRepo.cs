@@ -29,14 +29,13 @@ namespace Repository.Impl
             }
             return places;
         }
-        public async Task<List<Place>> GetAllPlaceByHostID(string Id)
+        public async Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id)
         {
             List<Place> places = new List<Place>();
             try
             {
-                places = await _context.Places.AsNoTracking().Where(p => p.HostId.ToString() == Id && p.DeleteFlag == 0)
-                                          .Include(p => p.Host)
-                                          .ToListAsync();
+                places = await _context.Places.AsNoTracking().Where(p => p.HostId == Id && p.DeleteFlag == 0)
+                                                             .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -64,7 +63,7 @@ namespace Repository.Impl
             Place places = new Place();
             try
             {
-                places =  _context.Places.AsNoTracking().Include(p => p.Host).FirstOrDefault(m => m.Id == placeId);
+                places =  _context.Places.AsNoTracking().FirstOrDefault(m => m.Id == placeId);
             }
             catch (Exception ex)
             {

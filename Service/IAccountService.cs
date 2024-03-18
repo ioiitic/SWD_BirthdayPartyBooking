@@ -13,5 +13,7 @@ namespace Services
         bool CheckEmailExist(string email);
         List<Account> GetAllActiveHosts();
         Task Remove(Guid Id);
+        Task AddNew(Account account);
+        Account GetAccountById(Guid Id);
     }
 }

@@ -19,7 +19,9 @@ namespace Services.Impl
 
         public List<Place> GetAllPlace(Guid Id) => placeRepo.GetAllPlace(Id);
 
-        public Task<List<Place>> GetAllPlaceByHostID(string Id) => placeRepo.GetAllPlaceByHostID(Id);
+        public Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id) => placeRepo.GetAllPlaceByHostID(Id);
+
+        public Place GetPlaceByPlaceID(Guid placeId) => placeRepo.GetPlaceByPlaceID(placeId);
 
         public Task Remove(Guid Id) => placeRepo.Remove(Id);
     }

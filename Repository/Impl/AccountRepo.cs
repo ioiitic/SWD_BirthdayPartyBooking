@@ -40,7 +40,17 @@ namespace Repository.Impl
                 throw new Exception($"Error checking login: {ex.Message}", ex);
             }
         }
-
+        public Account GetAccountById(Guid Id)
+        {
+            try
+            {
+                return _context.Accounts.AsNoTracking().Where(s => s.Id == Id).SingleOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public bool CheckEmailExist(string email)
         {
             try
@@ -51,6 +61,12 @@ namespace Repository.Impl
             {
                 throw new Exception($"Error checking if email exists: {ex.Message}", ex);
             }
+        }
+        public async Task AddNew(Account account)
+        {
+           account.DeleteFlag = 0;
+           _context.Accounts.Add(account);
+           await _context.SaveChangesAsync();   
         }
         public async Task Remove(Guid Id)
         {

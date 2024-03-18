@@ -21,9 +21,15 @@ namespace Services.Impl
 
         public List<ServiceType> GetAllServiceTypes() => serviceRepo.GetAllServiceTypes();
 
+        public Task<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType) => serviceRepo.GetServiceByHostIDAndServiceType(hostId, serviceType);
+
+        public Service GetServiceByServiceID(Guid Id) => serviceRepo.GetServiceByServiceID(Id);
+
         public Task<Service> GetServiceByServiceIDAndHostID(Guid Id, string HostID) => serviceRepo.GetServiceByServiceIDAndHostID(Id, HostID);
 
         public ServiceType GetServiceTypeByServiceTypeID(Guid Id) => serviceRepo.GetServiceTypeByServiceTypeID(Id);
+
+        public Guid GetServiceTypeIdByServiceName(string serviceName) =>serviceRepo.GetServiceTypeIdByServiceName(serviceName);
 
         public List<Service> GetValidServices(Guid Id) => serviceRepo.GetValidServices(Id);
 

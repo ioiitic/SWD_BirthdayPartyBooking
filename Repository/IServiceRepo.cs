@@ -14,6 +14,9 @@ namespace Repository
         List<ServiceType> GetAllServiceTypes();
         Task<Service> GetServiceByServiceIDAndHostID(Guid Id, string HostID);
         ServiceType GetServiceTypeByServiceTypeID(Guid Id);
+        Task<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType);
+        Guid GetServiceTypeIdByServiceName(string serviceName);
+        Service GetServiceByServiceID(Guid Id);
         Task Remove(Guid Id);
 
     }

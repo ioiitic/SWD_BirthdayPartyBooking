@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class AccountController
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
         private IServiceWrapper _service;
         private IAccountService _accountService;
@@ -30,69 +30,87 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<Account> GetAllAsscountIncludeChildren(string[] children)
+        [ProducesResponseType(200, Type = typeof(Account))]
+        [ProducesResponseType(400)]
+        public IActionResult SignIn(string Email, string Password)
         {
-            var accounts = _service.Account.GetAll(children);
 
-            return accounts;
-        }
-
-        //[HttpGet("[action]")]
-        //public IEnumerable<Account> GetAllAccount([FromQuery] int deleteFlag)
-        //{
-        //    var accounts = _service.Account.GetAll(a => a.DeleteFlag == deleteFlag);
-
-        //    return accounts;
-        //}
-
-        [HttpGet("[action]")]
-        public List<Account> GetAllActiveHosts()
-        {
-            var accounts = _accountService.GetAllActiveHosts();
-
-            return accounts;
-        }
-
-        [HttpGet("[action]")]
-        public Account GetAccountByAccountID(Guid id)
-        {
-            var account = _accountService.GetById(id);
-
-            return account;
-        }
-
-        [HttpPut("[action]")]
-        public bool CheckEmailExist(string email)
-        {
-            var accounts = _accountService.CheckEmailExist(email);
-
-            return accounts;
-        }
-
-        [HttpPut("[action]")]
-        public Account CheckLogin(string Email, string Password)
-        {
             var accounts = _accountService.CheckLogin(Email, Password);
+            if (accounts == null)
+            {
+                return NotFound();
+            }
 
-            return accounts;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(accounts);
         }
 
-        [HttpPut("[action]")]
-        public void InsertAccount(Account account)
+        [HttpGet("[action]")]
+        [ProducesResponseType(200, Type = typeof(Account))]
+        [ProducesResponseType(400)]
+        public IActionResult GetAccount(Guid Id)
         {
-            _service.Account.Insert(account);       
+
+            var accounts = _service.Account.GetById(Id);
+
+            if (accounts.DeleteFlag != 0)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(accounts);
         }
 
-        [HttpPut("[action]")]
-        public void UpdateAccount(Account account)
+        [HttpPost("[action]")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult SignUp([FromBody] Account account)
         {
-            _service.Account.Update(account);
+            if (account == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkAccount = _accountService.CheckEmailExist(account.Email);
+            if (checkAccount)
+            {
+                ModelState.AddModelError("", "This email already exists");
+                return StatusCode(422, ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            _accountService.AddNew(account);
+            return Ok("Successfully created");
         }
 
-        [HttpDelete("[action]")]
-        public async Task Remove(Guid Id)
+        [HttpPut("[action]/{accountId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateAccount(Guid accountId, [FromBody] Account account)
         {
-            await _accountService.Remove(Id); 
+            if (account == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (accountId != account.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkAccounts = _accountService.GetAccountById(accountId);
+            if (checkAccounts==null || checkAccounts.DeleteFlag != 0)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _service.Account.Update(account);  
+            return Ok("Successfully updated");
         }
     }
 }

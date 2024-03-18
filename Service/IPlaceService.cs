@@ -10,7 +10,8 @@ namespace Services
     public interface IPlaceService : IBaseService<Place>
     {
         List<Place> GetAllPlace(Guid Id);
-        Task<List<Place>> GetAllPlaceByHostID(string Id);
+        Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id);
+        Place GetPlaceByPlaceID(Guid placeId);
         Task Remove(Guid Id);
     }
 }

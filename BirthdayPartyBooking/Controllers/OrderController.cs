@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Services;
 using System.Collections.Generic;
 using System;
+using Services.Impl;
 
 namespace BirthdayPartyBooking.Controller
 {
     [ApiController]
-    [Route("[controller]")]
-    public class OrderController
+    [Route("api/[controller]")]
+    public class OrderController : ControllerBase
     {
         private IServiceWrapper _service;
         private IOrderService _orderService;
@@ -19,78 +20,29 @@ namespace BirthdayPartyBooking.Controller
             _orderService = orderService;
         }
 
-        [HttpGet("[action]")]
-        public IEnumerable<Order> GetAllOrders()
+        [HttpPut("[action]/{orderId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateOrder(Guid orderId, int status)
         {
-            var accounts = _service.Order.GetAll();
+            if (orderId == Guid.Empty)
+            {
+                return BadRequest(ModelState);
+            }
+           
+            var checkOrders = _service.Order.GetOrderByOrderID(orderId);    
 
-            return accounts;
+            if (checkOrders==null)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            checkOrders.Status = status;
+            _service.Order.Update(checkOrders);
+            return Ok("Successfully updated");
         }
 
-        [HttpGet("[action]")]
-        public IEnumerable<Order> GetAllOrderIncludeChildren(string[] children)
-        {
-            var accounts = _service.Order.GetAll(children);
-
-            return accounts;
-        }
-
-        //[HttpGet("[action]")]
-        //public IEnumerable<Account> GetAllAccount([FromQuery] int deleteFlag)
-        //{
-        //    var accounts = _service.Account.GetAll(a => a.DeleteFlag == deleteFlag);
-
-        //    return accounts;
-        //}
-
-        [HttpGet("[action]")]
-        public bool CheckOrderExist(Order order, string Id)
-        {
-            var orders = _orderService.CheckOrderExist(order, Id);
-
-            return orders;
-        }
-
-        [HttpGet("[action]")]
-        public List<Order> GetOrderByCustomerID(string id)
-        {
-            var order = _orderService.GetOrderByCustomerID(id);
-
-            return order;
-        }
-
-        [HttpGet("[action]")]
-        public List<Order> GetOrderByHostID(string id)
-        {
-            var order = _orderService.GetOrderByHostID(id);
-
-            return order;
-        }
-
-        [HttpGet("[action]")]
-        public Order GetOrderByOrderID(Guid id)
-        {
-            var order = _orderService.GetOrderByOrderID(id);
-            return order;
-        }
-
-        [HttpPut("[action]")]
-        public void InsertAccount(Order order)
-        {
-            _service.Order.Insert(order);
-        }
-
-        [HttpPut("[action]")]
-        public void UpdateOrder(Order order)
-        {
-            _service.Order.Update(order);
-        }
-
-        [HttpDelete("[action]")]
-        public void DeleteOrder(Guid id)
-        {
-
-            _orderService.Remove(id);
-        }
     }
 }

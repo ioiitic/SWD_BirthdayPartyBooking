@@ -4,12 +4,13 @@ using Services;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using Services.Impl;
 
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class PlaceController
+    [Route("api/[controller]")]
+    public class PlaceController : ControllerBase
     {
         private IServiceWrapper _service;
         private IPlaceService _placeService;
@@ -21,61 +22,94 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<Place> GetAllPlace(Guid id)
+        [ProducesResponseType(200, Type = typeof(Place))]
+        [ProducesResponseType(400)]
+        public IActionResult GetPlace(Guid Id)
         {
-            var places = _placeService.GetAllPlace(id);
 
-            return places;
+            var places = _placeService.GetAllPlaceByHostID(Id);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(places);
         }
 
-        [HttpGet("[action]")]
-        public IEnumerable<Place> GetAllPlaceIncludeChildren(string[] children)
+        [HttpPost("[action]")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreatePlace(Guid hostID, [FromBody] Place place)
         {
-            var places = _service.Place.GetAll(children);
+            if (place == null || hostID == Guid.Empty)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return places;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            place.DeleteFlag = 0;
+            place.HostId = hostID;
+            try
+            {
+                _service.Place.Insert(place);
+            }
+            catch
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok("Successfully created");
         }
 
-        //[HttpGet("[action]")]
-        //public IEnumerable<Account> GetAllAccount([FromQuery] int deleteFlag)
-        //{
-        //    var accounts = _service.Account.GetAll(a => a.DeleteFlag == deleteFlag);
-
-        //    return accounts;
-        //}
-
-        [HttpGet("[action]")]
-        public async Task<List<Place>> GetAllPlaceByHostID(string Id)
+        [HttpPut("[action]/{placeId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdatePlace(Guid placeId, [FromBody] Place place)
         {
-            var places = await _placeService.GetAllPlaceByHostID(Id);
+            if (place == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (placeId != place.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkplaces = _placeService.GetPlaceByPlaceID(placeId);
+            if (checkplaces==null)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            return places;
-        }
-
-        [HttpGet("[action]")]
-        public Place GetPlaceByPlaceID(Guid id)
-        {
-            var place = _service.Place.GetById(id); 
-
-            return place;
-        }
-
-        [HttpPut("[action]")]
-        public void InsertPlace(Place place)
-        {
-            _service.Place.Insert(place);
-        }
-
-        [HttpPut("[action]")]
-        public void Updateplace(Place place)
-        {
             _service.Place.Update(place);
+            return Ok("Successfully updated");
         }
 
-        [HttpDelete("[action]")]
-        public void DeletePlace(Guid id)
+        [HttpDelete("[action]/{placeId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeletePlace(Guid placeId)
         {
-            _placeService.Remove(id);
+            if (placeId == Guid.Empty)
+            {
+                return BadRequest(ModelState);
+            }
+            var checkplaces = _placeService.GetPlaceByPlaceID(placeId);
+            if (checkplaces==null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _placeService.Remove(placeId);
+            return Ok("Successfully updated");
         }
+
+
     }
 }

@@ -66,6 +66,7 @@ namespace Repository.Impl
         {
             _context.Set<T>().Attach(obj);
             _context.Entry(obj).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
         public void Delete(object id)
