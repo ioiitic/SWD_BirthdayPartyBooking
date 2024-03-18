@@ -29,11 +29,11 @@ namespace Repository.Impl
             }
         }
 
-        public Account CheckLogin(string Email, string Password)
+        public async Task<Account> CheckLogin(string Email, string Password)
         {
             try
             {
-                return _context.Accounts.AsNoTracking().FirstOrDefault(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
+                return await _context.Accounts.AsNoTracking().FirstOrDefaultAsync(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
             }
             catch (Exception ex)
             {

@@ -1,9 +1,17 @@
 ﻿using BusinessObject;
+using BusinessObject.Enum;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq.Expressions;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BirthdayPartyBooking.Controllers
@@ -32,10 +40,10 @@ namespace BirthdayPartyBooking.Controllers
         [HttpGet("[action]")]
         [ProducesResponseType(200, Type = typeof(Account))]
         [ProducesResponseType(400)]
-        public IActionResult SignIn(string Email, string Password)
+        public async Task<IActionResult> SignIn(string Email, string Password)
         {
 
-            var accounts = _accountService.CheckLogin(Email, Password);
+            var accounts = await _accountService.CheckLogin(Email, Password);
             if (accounts == null)
             {
                 return NotFound();
@@ -44,7 +52,39 @@ namespace BirthdayPartyBooking.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(accounts);
+            var tokenCustomer = new
+            {
+                accounts,
+                token = GenerateToken(accounts)
+            };
+
+            return Ok(tokenCustomer);
+        }
+
+        private string GenerateToken(Account account)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            var builder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            IConfigurationRoot configuration = builder.Build();
+            var secretKeyBytes = Encoding.UTF8.GetBytes(configuration.GetConnectionString("SecretKey"));
+
+            var tokenDescription = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Role, UserRole.Role[account.Role.Value]),
+                    new Claim("TokenId", Guid.NewGuid().ToString())
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey
+                    (secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescription);
+            return jwtTokenHandler.WriteToken(token);
         }
 
         [HttpGet("[action]")]

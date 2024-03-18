@@ -21,7 +21,7 @@ namespace Services.Impl
 
         public bool CheckEmailExist(string email) => accountRepo.CheckEmailExist(email);
 
-        public Account CheckLogin(string Email, string Password) => accountRepo.CheckLogin(Email, Password);
+        public async Task<Account> CheckLogin(string Email, string Password) => await accountRepo.CheckLogin(Email, Password);
 
         public Account GetAccountById(Guid Id) => accountRepo.GetAccountById(Id);
 
