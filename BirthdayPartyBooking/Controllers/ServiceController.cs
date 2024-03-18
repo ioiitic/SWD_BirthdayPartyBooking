@@ -24,14 +24,14 @@ namespace BirthdayPartyBooking.Controllers
         [HttpGet("[action]")]
         [ProducesResponseType(200, Type = typeof(Service))]
         [ProducesResponseType(400)]
-        public IActionResult GetServiceByType(Guid hostId, string ServiceType)
+        public async Task<IActionResult> GetServiceByType(Guid hostId, string ServiceType)
         {
             //var serviceType = _serviceService.GetServiceTypeIdByServiceName(ServiceType);
             //if (serviceType==null)
             //{
             //    return NotFound();
             //}
-            var services = _serviceService.GetServiceByHostIDAndServiceType(hostId, ServiceType);
+            var services = await _serviceService.GetServiceByHostIDAndServiceType(hostId, ServiceType);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
