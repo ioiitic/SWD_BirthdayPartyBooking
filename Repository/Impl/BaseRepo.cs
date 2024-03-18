@@ -59,12 +59,14 @@ namespace Repository.Impl
         public void Insert(T obj)
         {
             _context.Set<T>().Add(obj);
+            _context.SaveChanges();
         }
 
         public void Update(T obj)
         {
             _context.Set<T>().Attach(obj);
             _context.Entry(obj).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
         public void Delete(object id)

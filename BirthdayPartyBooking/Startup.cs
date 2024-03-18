@@ -15,6 +15,7 @@ using Services.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BirthdayPartyBooking
@@ -32,11 +33,14 @@ namespace BirthdayPartyBooking
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c => 
+            services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BirthdayPartyBooking", Version = "v1" });
             });
-
+            services.AddControllers().AddJsonOptions(x =>
+            {
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+            });
             services.AddDbContext<BirthdayPartyBookingContext>();
 
             services.AddScoped<IRepoWrapper, RepoWrapper>();
@@ -46,7 +50,7 @@ namespace BirthdayPartyBooking
             services.AddScoped<IPlaceRepo, PlaceRepo>();
             services.AddScoped<IServiceRepo, ServiceRepo>();
             services.AddScoped<IServiceTypeRepo, ServiceTypeRepo>();
-            
+
             services.AddScoped<IServiceWrapper, ServiceWrapper>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
