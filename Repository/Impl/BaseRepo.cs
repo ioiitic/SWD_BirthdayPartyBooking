@@ -11,7 +11,7 @@ namespace Repository.Impl
 {
     public abstract class BaseRepo<T> : IBaseRepo<T> where T : class
     {
-        private BirthdayPartyBookingContext _context;
+        protected BirthdayPartyBookingContext _context;
 
         public BaseRepo(BirthdayPartyBookingContext context)
         {
