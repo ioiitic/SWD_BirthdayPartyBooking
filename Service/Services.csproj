@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="5.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BusinessObject\BusinessObject.csproj" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
   </ItemGroup>

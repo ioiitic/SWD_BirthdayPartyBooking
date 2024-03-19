@@ -10,11 +10,31 @@ namespace Repository.Impl
 {
     public class AccountRepo : BaseRepo<Account>, IAccountRepo
     {
-        //private readonly BirthdayPartyBookingContext _context;
-
         public AccountRepo(BirthdayPartyBookingContext context) : base(context)
         {
-            //_context = context;
+        }
+
+        public async Task<Account> CheckLogin(string Email, string Password)
+        {
+            try
+            {
+                return await _context.Accounts.AsNoTracking().FirstOrDefaultAsync(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error checking login: {ex.Message}", ex);
+            }
+        }
+        public async Task<bool> CheckEmailExist(string email)
+        {
+            try
+            {
+                return await _context.Accounts.AsNoTracking().AnyAsync(s => s.DeleteFlag == 0 && s.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error checking if email exists: {ex.Message}", ex);
+            }
         }
 
         public List<Account> GetAllActiveHosts()
@@ -28,18 +48,6 @@ namespace Repository.Impl
                 throw new Exception($"Error retrieving all active hosts: {ex.Message}", ex);
             }
         }
-
-        public Account CheckLogin(string Email, string Password)
-        {
-            try
-            {
-                return base._context.Accounts.AsNoTracking().FirstOrDefault(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error checking login: {ex.Message}", ex);
-            }
-        }
         public Account GetAccountById(Guid Id)
         {
             try
@@ -50,23 +58,6 @@ namespace Repository.Impl
             {
                 throw new Exception(ex.Message);
             }
-        }
-        public bool CheckEmailExist(string email)
-        {
-            try
-            {
-                return _context.Accounts.AsNoTracking().Any(s => s.DeleteFlag == 0 && s.Email == email);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error checking if email exists: {ex.Message}", ex);
-            }
-        }
-        public bool AddNew(Account account)
-        {
-           account.DeleteFlag = 0;
-           base._context.Accounts.Add(account);
-            return Save();
         }
         public bool Remove(Guid Id)
         {

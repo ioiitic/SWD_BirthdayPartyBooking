@@ -1,4 +1,5 @@
-﻿using BusinessObject;
+﻿using AutoMapper;
+using BusinessObject;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,7 @@ namespace Services.Impl
 {
     public class PlaceService : BaseService<Place>, IPlaceService
     {
-        public PlaceService(IRepoWrapper repoWrapper, IPlaceRepo placeRepo)
-            : base(repoWrapper)
+        public PlaceService(IRepoWrapper repoWrapper, IMapper mapper) : base(repoWrapper, mapper)
         {
         }
 

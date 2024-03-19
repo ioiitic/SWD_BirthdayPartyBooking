@@ -1,4 +1,5 @@
-﻿using BusinessObject;
+﻿using AutoMapper;
+using BusinessObject;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ namespace Services.Impl
 {
     public class ServiceTypeService : BaseService<ServiceType>, IServiceTypeService
     {
-        public ServiceTypeService(IRepoWrapper repoWrapper)
-            : base(repoWrapper)
+        public ServiceTypeService(IRepoWrapper repoWrapper, IMapper mapper)
+            : base(repoWrapper, mapper)
         {
         }
     }

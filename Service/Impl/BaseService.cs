@@ -1,22 +1,20 @@
-﻿using BusinessObject;
+﻿using AutoMapper;
 using Repository;
-using Repository.Impl;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Impl
 {
     public abstract class BaseService<T> : IBaseService<T> where T : class
     {
         protected IRepoWrapper _repoWrapper;
+        protected IMapper _mapper;
 
-        public BaseService(IRepoWrapper repoWrapper)
+        public BaseService(IRepoWrapper repoWrapper, IMapper mapper)
         {
             _repoWrapper = repoWrapper;
+            _mapper = mapper;
         }
 
         public IEnumerable<T> GetAll() => _repoWrapper.GetRepository<T>().GetAll();
