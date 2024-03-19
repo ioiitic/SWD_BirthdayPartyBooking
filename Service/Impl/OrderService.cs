@@ -1,4 +1,5 @@
-﻿using BusinessObject;
+﻿using AutoMapper;
+using BusinessObject;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,7 @@ namespace Services.Impl
 {
     public class OrderService : BaseService<Order>, IOrderService
     {
-        public OrderService(IRepoWrapper repoWrapper, IOrderRepo orderRepo)
-            : base(repoWrapper)
+        public OrderService(IRepoWrapper repoWrapper, IMapper mapper) : base(repoWrapper, mapper)
         {
         }
 

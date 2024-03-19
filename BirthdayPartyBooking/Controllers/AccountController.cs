@@ -1,23 +1,19 @@
-﻿using BusinessObject;
-using BusinessObject.Enum;
+﻿using BirthdayPartyBooking.Filter;
+using BusinessObject;
+using BusinessObject.DTO.RequestDTO;
+using BusinessObject.DTO.ResponseDTO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq.Expressions;
+using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class AccountController : ControllerBase
     {
         private IServiceWrapper _service;
@@ -25,6 +21,41 @@ namespace BirthdayPartyBooking.Controllers
         public AccountController(IServiceWrapper service, IAccountService accountService)
         {
             _service = service;
+        }
+
+        [HttpPost("auth/[action]")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NotFound)]
+        [CustomValidationFilter]
+        public async Task<IActionResult> SignIn([FromBody] SignInRequest signInRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ServiceResponse<object>(false, "Moi"));
+            }
+            var response = await _service.Account.SignIn(signInRequest.Email, signInRequest.Password);
+
+            if (response.Success == false)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("auth/[action]")]
+        [ProducesResponseType((int) HttpStatusCode.Conflict)]
+        [ProducesResponseType((int) HttpStatusCode.Created)]
+        public async Task<IActionResult> SignUp([FromBody] SignUpRequest signUpRequest)
+        {
+            var signUpResponse = await _service.Account.SignUp(signUpRequest);
+            
+            if (signUpResponse.Success == false)
+            {
+                return Conflict(signUpResponse);
+            }
+
+            return Created("auth/[action]", signUpResponse);
         }
 
         [HttpGet("[action]")]
@@ -35,37 +66,13 @@ namespace BirthdayPartyBooking.Controllers
             return accounts;
         }
 
-        private string GenerateToken(Account account)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            var builder = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            IConfigurationRoot configuration = builder.Build();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(configuration.GetConnectionString("SecretKey"));
-
-            var tokenDescription = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Role, UserRole.Role[account.Role.Value]),
-                    new Claim("TokenId", Guid.NewGuid().ToString())
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey
-                    (secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
-            };
-
-            var token = jwtTokenHandler.CreateToken(tokenDescription);
-            return jwtTokenHandler.WriteToken(token);
-        }
-
         [HttpGet("[action]")]
         [ProducesResponseType(200, Type = typeof(Account))]
         [ProducesResponseType(400)]
         public IActionResult GetAccount(Guid Id)
         {
+            var claimsIdentity = this.User.Identity as ClaimsIdentity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.Name)?.Value;
 
             var accounts = _service.Account.GetById(Id);
 
@@ -78,55 +85,6 @@ namespace BirthdayPartyBooking.Controllers
                 return BadRequest(ModelState);
 
             return Ok(accounts);
-        }
-
-        [HttpPost("[action]")]
-        [ProducesResponseType(200, Type = typeof(Account))]
-        [ProducesResponseType(400)]
-        public IActionResult SignIn(string Email, string Password)
-        {
-
-            var accounts = _service.Account.CheckLogin(Email, Password);
-            if (accounts == null)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var tokenCustomer = new
-            {
-                accounts,
-                token = GenerateToken(accounts)
-            };
-
-            return Ok(tokenCustomer);
-        }
-
-        [HttpPost("[action]")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        public IActionResult SignUp([FromBody] Account account)
-        {
-            if (account == null)
-            {
-                return BadRequest(ModelState);
-            }
-            var checkAccount = _service.Account.CheckEmailExist(account.Email);
-            if (checkAccount)
-            {
-                ModelState.AddModelError("", "This email already exists");
-                return StatusCode(422, ModelState);
-            }
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            if (!_service.Account.AddNew(account))
-            {
-                ModelState.AddModelError("","Something went wrong while saving.");
-                return StatusCode(500, ModelState);
-            }
-            return Ok("Successfully created");
         }
 
         [HttpPut("[action]/{accountId}")]
