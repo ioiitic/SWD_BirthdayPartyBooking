@@ -1,4 +1,6 @@
 ﻿using BusinessObject;
+using BusinessObject.DTO.ResponseDTO;
+using BusinessObject.DTO.ServiceDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ namespace Services
         List<ServiceType> GetAllServiceTypes();
         Service GetServiceByServiceIDAndHostID(Guid Id, string HostID);
         ServiceType GetServiceTypeByServiceTypeID(Guid Id);
-        IEnumerable<Object> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType);
+        ServiceResponse<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType);
         Guid GetServiceTypeIdByServiceName(string serviceName);
         Service GetServiceByServiceID(Guid Id);
         bool Remove(Guid Id);

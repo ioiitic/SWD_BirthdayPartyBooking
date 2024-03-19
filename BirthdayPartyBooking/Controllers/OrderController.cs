@@ -4,11 +4,14 @@ using Services;
 using System.Collections.Generic;
 using System;
 using Services.Impl;
+using BusinessObject.DTO.RequestDTO;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace BirthdayPartyBooking.Controller
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class OrderController : ControllerBase
     {
         private IServiceWrapper _service;
@@ -51,6 +54,15 @@ namespace BirthdayPartyBooking.Controller
                 return BadRequest(ModelState);
 
             return Ok(order);
+        }
+
+        [HttpPost("[action]")]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
+        [ProducesResponseType((int)HttpStatusCode.Created)]
+        public IActionResult Booking(Guid customerId, Guid hostId, DateTime dateBooking, string note, [FromBody] BookingRequest bookingRequest)
+        {
+            var booking = _service.Order.Booking(customerId, hostId, dateBooking, note, bookingRequest.place, bookingRequest.serviceRequests);
+            return Ok(booking);
         }
 
         [HttpPut("[action]/{orderId}")]

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/")]
     public class OrderDetailController : ControllerBase
     {
         private IServiceWrapper _service;
