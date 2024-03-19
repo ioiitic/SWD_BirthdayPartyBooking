@@ -10,11 +10,9 @@ namespace Repository.Impl
 {
     public class PlaceRepo : BaseRepo<Place>,IPlaceRepo
     {
-        private BirthdayPartyBookingContext _context;
         public PlaceRepo(BirthdayPartyBookingContext context)
             : base(context)
         {
-            _context = context;
         }
         public List<Place> GetAllPlace(Guid Id)
         {
@@ -29,13 +27,13 @@ namespace Repository.Impl
             }
             return places;
         }
-        public async Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id)
+        public IEnumerable<Place> GetAllPlaceByHostID(Guid Id)
         {
             List<Place> places = new List<Place>();
             try
             {
-                places = await _context.Places.AsNoTracking().Where(p => p.HostId == Id && p.DeleteFlag == 0)
-                                                             .ToListAsync();
+                places =  _context.Places.AsNoTracking().Where(p => p.HostId == Id && p.DeleteFlag == 0)
+                                                        .ToList();
             }
             catch (Exception ex)
             {
@@ -43,6 +41,7 @@ namespace Repository.Impl
             }
             return places;
         }
+
         //public async Task<Place> GetAllPlaceByHostIDAndPlaceID(string HostId, Guid placeId)
         //{
         //    Place places = new Place();
@@ -72,7 +71,7 @@ namespace Repository.Impl
             return places;
         }
 
-        public async Task Remove(Guid Id)
+        public bool Remove(Guid Id)
         {
             try
             {
@@ -80,8 +79,7 @@ namespace Repository.Impl
                 if (_place != null)
                 {
                     _place.DeleteFlag = 1;
-                    _context.Entry<Place>(_place).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    _context.Entry<Place>(_place).State = EntityState.Modified;                    
                 }
                 else
                 {
@@ -92,6 +90,13 @@ namespace Repository.Impl
             {
                 throw new Exception(ex.Message);
             }
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = base._context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

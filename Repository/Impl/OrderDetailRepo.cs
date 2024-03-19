@@ -12,28 +12,24 @@ namespace Repository.Impl
 {
     public class OrderDetailRepo : BaseRepo<OrderDetail>, IOrderDetailRepo
     {
-        public BirthdayPartyBookingContext _context;
         public OrderDetailRepo(BirthdayPartyBookingContext context)
             : base(context)
         {
-            _context = context;
         }
-        public async Task<List<OrderDetail>> GetOrderDetailByOrderID(Guid id)
+        public List<OrderDetail> GetOrderDetailByOrderID(Guid id)
         {
             try
             {
-                return await _context.OrderDetails.AsNoTracking()
+                return _context.OrderDetails.AsNoTracking()
                                                   .Where(o => o.OrderId == id)
                                                   .Include(o => o.Service)
                                                   .Include(o => o.Service.ServiceType)
-                                                  .ToListAsync();
+                                                  .ToList();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-
-
     }
 }

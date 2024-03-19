@@ -10,21 +10,19 @@ namespace Services.Impl
 {
     public class OrderService : BaseService<Order>, IOrderService
     {
-        private IOrderRepo _orderRepo;
         public OrderService(IRepoWrapper repoWrapper, IOrderRepo orderRepo)
             : base(repoWrapper)
         {
-            _orderRepo = orderRepo;
         }
 
-        public bool CheckOrderExist(Order order, string Id) => _orderRepo.CheckOrderExist(order, Id);   
+        public bool CheckOrderExist(Order order, Guid Id) => _repoWrapper.Order.CheckOrderExist(order, Id);   
 
-        public List<Order> GetOrderByCustomerID(string id) => _orderRepo.GetOrderByCustomerID(id);
+        public List<Order> GetOrderByCustomerID(Guid id) => _repoWrapper.Order.GetOrderByCustomerID(id);
 
-        public List<Order> GetOrderByHostID(string id) => _orderRepo.GetOrderByHostID(id);
+        public List<Order> GetOrderByHostID(Guid id) => _repoWrapper.Order.GetOrderByHostID(id);
 
-        public Order GetOrderByOrderID(Guid id) => _orderRepo.GetOrderByOrderID(id);
+        public Order GetOrderByOrderID(Guid id) => _repoWrapper.Order.GetOrderByOrderID(id);
 
-        public void Remove(Guid Id) => _orderRepo.Remove(Id);
+        public bool Remove(Guid Id) => _repoWrapper.Order.Remove(Id);
     }
 }

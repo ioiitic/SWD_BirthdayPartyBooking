@@ -10,13 +10,11 @@ namespace Services.Impl
 {
     public class OrderDetailService : BaseService<OrderDetail>, IOrderDetailService
     {
-        public IOrderDetailRepo orderDetailRepo;
         public OrderDetailService(IRepoWrapper repoWrapper, IOrderDetailRepo orderDetailRepo)
             : base(repoWrapper)
         {
-            this.orderDetailRepo=orderDetailRepo;
         }
 
-        public Task<List<OrderDetail>> GetOrderDetailByOrderID(Guid id) => orderDetailRepo.GetOrderDetailByOrderID(id); 
+        public List<OrderDetail> GetOrderDetailByOrderID(Guid id) => _repoWrapper.OrderDetail.GetOrderDetailByOrderID(id); 
     }
 }

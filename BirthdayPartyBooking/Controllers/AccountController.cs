@@ -21,12 +21,10 @@ namespace BirthdayPartyBooking.Controllers
     public class AccountController : ControllerBase
     {
         private IServiceWrapper _service;
-        private IAccountService _accountService;
 
         public AccountController(IServiceWrapper service, IAccountService accountService)
         {
             _service = service;
-            _accountService=accountService;
         }
 
         [HttpGet("[action]")]
@@ -35,30 +33,6 @@ namespace BirthdayPartyBooking.Controllers
             var accounts = _service.Account.GetAll();
 
             return accounts;
-        }
-
-        [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(Account))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> SignIn(string Email, string Password)
-        {
-
-            var accounts = await _accountService.CheckLogin(Email, Password);
-            if (accounts == null)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var tokenCustomer = new
-            {
-                accounts,
-                token = GenerateToken(accounts)
-            };
-
-            return Ok(tokenCustomer);
         }
 
         private string GenerateToken(Account account)
@@ -107,6 +81,30 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpPost("[action]")]
+        [ProducesResponseType(200, Type = typeof(Account))]
+        [ProducesResponseType(400)]
+        public IActionResult SignIn(string Email, string Password)
+        {
+
+            var accounts = _service.Account.CheckLogin(Email, Password);
+            if (accounts == null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var tokenCustomer = new
+            {
+                accounts,
+                token = GenerateToken(accounts)
+            };
+
+            return Ok(tokenCustomer);
+        }
+
+        [HttpPost("[action]")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult SignUp([FromBody] Account account)
@@ -115,7 +113,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkAccount = _accountService.CheckEmailExist(account.Email);
+            var checkAccount = _service.Account.CheckEmailExist(account.Email);
             if (checkAccount)
             {
                 ModelState.AddModelError("", "This email already exists");
@@ -123,7 +121,11 @@ namespace BirthdayPartyBooking.Controllers
             }
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _accountService.AddNew(account);
+            if (!_service.Account.AddNew(account))
+            {
+                ModelState.AddModelError("","Something went wrong while saving.");
+                return StatusCode(500, ModelState);
+            }
             return Ok("Successfully created");
         }
 
@@ -141,7 +143,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkAccounts = _accountService.GetAccountById(accountId);
+            var checkAccounts = _service.Account.GetAccountById(accountId);
             if (checkAccounts==null || checkAccounts.DeleteFlag != 0)
             {
                 return NotFound();

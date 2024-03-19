@@ -10,24 +10,22 @@ namespace Services.Impl
 {
     public class AccountService : BaseService<Account>, IAccountService
     {
-        public IAccountRepo accountRepo;
         public AccountService(IRepoWrapper repoWrapper, IAccountRepo accountRepo)
             : base(repoWrapper)
         {
-            this.accountRepo = accountRepo;
         }
 
-        public Task AddNew(Account account) => accountRepo.AddNew(account); 
+        public bool AddNew(Account account) => _repoWrapper.Account.AddNew(account); 
 
-        public bool CheckEmailExist(string email) => accountRepo.CheckEmailExist(email);
+        public bool CheckEmailExist(string email) => _repoWrapper.Account.CheckEmailExist(email);
 
-        public async Task<Account> CheckLogin(string Email, string Password) => await accountRepo.CheckLogin(Email, Password);
+        public Account CheckLogin(string Email, string Password) => _repoWrapper.Account.CheckLogin(Email, Password);
 
-        public Account GetAccountById(Guid Id) => accountRepo.GetAccountById(Id);
+        public Account GetAccountById(Guid Id) => _repoWrapper.Account.GetAccountById(Id);
 
-        public List<Account> GetAllActiveHosts()=> accountRepo.GetAllActiveHosts();
+        public List<Account> GetAllActiveHosts()=> _repoWrapper.Account.GetAllActiveHosts();
 
-        public Task Remove(Guid Id) => accountRepo.Remove(Id);  
+        public bool Remove(Guid Id) => _repoWrapper.Account.Remove(Id);  
 
     }
 }

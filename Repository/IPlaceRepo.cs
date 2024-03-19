@@ -10,8 +10,9 @@ namespace Repository
     public interface IPlaceRepo : IBaseRepo<Place>
     {
         List<Place> GetAllPlace(Guid Id);
-        Task<IEnumerable<Place>> GetAllPlaceByHostID(Guid Id);
+        IEnumerable<Place> GetAllPlaceByHostID(Guid Id);
         Place GetPlaceByPlaceID(Guid placeId);
-        Task Remove(Guid Id);
+        bool Remove(Guid Id);
+        bool Save();
     }
 }

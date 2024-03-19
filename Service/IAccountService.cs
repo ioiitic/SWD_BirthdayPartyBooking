@@ -9,11 +9,11 @@ namespace Services
 {
     public interface IAccountService : IBaseService<Account>
     {
-        Task<Account> CheckLogin(string Email, string Password);
+        Account CheckLogin(string Email, string Password);
         bool CheckEmailExist(string email);
         List<Account> GetAllActiveHosts();
-        Task Remove(Guid Id);
-        Task AddNew(Account account);
+        bool Remove(Guid Id);
+        bool AddNew(Account account);
         Account GetAccountById(Guid Id);
     }
 }

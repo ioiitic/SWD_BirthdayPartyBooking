@@ -10,18 +10,18 @@ namespace Repository.Impl
 {
     public class AccountRepo : BaseRepo<Account>, IAccountRepo
     {
-        private readonly BirthdayPartyBookingContext _context;
+        //private readonly BirthdayPartyBookingContext _context;
 
         public AccountRepo(BirthdayPartyBookingContext context) : base(context)
         {
-            _context = context;
+            //_context = context;
         }
 
         public List<Account> GetAllActiveHosts()
         {
             try
             {
-                return _context.Accounts.AsNoTracking().Where(a => a.Role == 2 && a.DeleteFlag == 0).ToList();
+                return base._context.Accounts.AsNoTracking().Where(a => a.Role == 2 && a.DeleteFlag == 0).ToList();
             }
             catch (Exception ex)
             {
@@ -29,11 +29,11 @@ namespace Repository.Impl
             }
         }
 
-        public async Task<Account> CheckLogin(string Email, string Password)
+        public Account CheckLogin(string Email, string Password)
         {
             try
             {
-                return await _context.Accounts.AsNoTracking().FirstOrDefaultAsync(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
+                return base._context.Accounts.AsNoTracking().FirstOrDefault(s => s.Email == Email && s.Password == Password && s.DeleteFlag == 0);
             }
             catch (Exception ex)
             {
@@ -44,7 +44,7 @@ namespace Repository.Impl
         {
             try
             {
-                return _context.Accounts.AsNoTracking().Where(s => s.Id == Id).SingleOrDefault();
+                return base._context.Accounts.AsNoTracking().Where(s => s.Id == Id).SingleOrDefault();
             }
             catch (Exception ex)
             {
@@ -62,22 +62,21 @@ namespace Repository.Impl
                 throw new Exception($"Error checking if email exists: {ex.Message}", ex);
             }
         }
-        public async Task AddNew(Account account)
+        public bool AddNew(Account account)
         {
            account.DeleteFlag = 0;
-           _context.Accounts.Add(account);
-           await _context.SaveChangesAsync();   
+           base._context.Accounts.Add(account);
+            return Save();
         }
-        public async Task Remove(Guid Id)
+        public bool Remove(Guid Id)
         {
             try
             {
-                Account _Account = _context.Accounts.Where(a => a.Id == Id).FirstOrDefault();
+                Account _Account = base._context.Accounts.Where(a => a.Id == Id).FirstOrDefault();
                 if (_Account != null)
                 {
                     _Account.DeleteFlag = 1;
-                    _context.Entry<Account>(_Account).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    base._context.Entry<Account>(_Account).State = EntityState.Modified;
                 }
                 else
                 {
@@ -88,6 +87,13 @@ namespace Repository.Impl
             {
                 throw new Exception(ex.Message);
             }
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = base._context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
     }
