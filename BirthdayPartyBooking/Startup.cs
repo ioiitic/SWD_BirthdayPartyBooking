@@ -66,9 +66,9 @@ namespace BirthdayPartyBooking
                     policy =>
                     {
                         policy
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                        .AllowAnyMethod();
                     });
             });
 
