@@ -69,8 +69,22 @@ namespace BirthdayPartyBooking.Controllers
             var accounts = _service.Account.GetAccountById(Id);
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ServiceResponse<object>(false,""));
 
+            return Ok(accounts);
+        }
+
+        [HttpGet("[action]")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllHost()
+        {
+            var accounts = _service.Account.GetAllHost();
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ServiceResponse<object>(false));
+            }
             return Ok(accounts);
         }
 
@@ -89,15 +103,16 @@ namespace BirthdayPartyBooking.Controllers
                 return BadRequest(ModelState);
             }
             var checkAccounts = _service.Account.GetAccountById(accountId);
+
             if (checkAccounts==null)
             {
-                return NotFound();
+                return NotFound(new ServiceResponse<object>(false, "Wrong account"));
             }
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ServiceResponse<object>(false, ""));
 
-            _service.Account.Update(account);  
-            return Ok("Successfully updated");
+            var update  = _service.Account.Update(account);  
+            return Ok(update);
         }
     }
 }

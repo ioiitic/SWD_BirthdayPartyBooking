@@ -15,6 +15,7 @@ namespace BusinessObject.DTO
             CreateMap<SignUpRequest, Account>().ForMember(des => des.DeleteFlag, opt => opt.MapFrom(src => 0));
             CreateMap<Service, ServiceResponseDTO>();
             CreateMap<Place, PlaceView>();
+            CreateMap<PlaceCreateDTO, Place>();
         }
     }
 }

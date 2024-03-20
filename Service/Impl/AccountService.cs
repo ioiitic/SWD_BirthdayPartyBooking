@@ -37,8 +37,9 @@ namespace Services.Impl
             var checkAccount = await _repoWrapper.Account.CheckEmailExist(signUpRequest.Email);
 
             if (checkAccount)
+            {
                 return new ServiceResponse<object>(false, "Duplicate Email!");
-
+            }
             var accountSignUp = _mapper.Map<Account>(signUpRequest);
             _repoWrapper.Account.Insert(accountSignUp);
 
@@ -52,8 +53,13 @@ namespace Services.Impl
                 return new ServiceResponse<Account>(false, "Not found");
             return new ServiceResponse<Account>(account);
         }
-        public List<Account> GetAllActiveHosts()=> _repoWrapper.Account.GetAllActiveHosts();
 
         public bool Remove(Guid Id) => _repoWrapper.Account.Remove(Id);
+
+        public ServiceResponse<List<Account>> GetAllHost()
+        {
+            var listHost = _repoWrapper.Account.GetAllActiveHosts();
+            return new ServiceResponse<List<Account>>(listHost);
+        }
     }
 }

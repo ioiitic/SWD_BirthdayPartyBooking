@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject;
+using BusinessObject.DTO.ResponseDTO;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,14 @@ namespace Services.Impl
         {
         }
 
-        public List<OrderDetail> GetOrderDetailByOrderID(Guid id) => _repoWrapper.OrderDetail.GetOrderDetailByOrderID(id); 
+        public ServiceResponse<List<OrderDetail>> GetOrderDetailByOrderID(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return new ServiceResponse<List<OrderDetail>>(false, "Id is null.");
+            }
+            var listOrderDetail = _repoWrapper.OrderDetail.GetOrderDetailByOrderID(id);
+            return new ServiceResponse<List<OrderDetail>>(listOrderDetail);
+        }
     }
 }

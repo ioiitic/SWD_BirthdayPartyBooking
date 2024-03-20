@@ -7,6 +7,7 @@ using Services.Impl;
 using BusinessObject.DTO.RequestDTO;
 using System.Net;
 using System.Threading.Tasks;
+using BusinessObject.DTO.ResponseDTO;
 
 namespace BirthdayPartyBooking.Controller
 {
@@ -22,36 +23,39 @@ namespace BirthdayPartyBooking.Controller
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(Order))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public IActionResult GetOrderByCustomerID(Guid customerId)
-        {
-            if(customerId == Guid.Empty)
-            {
-                return BadRequest(ModelState);
-            }
+        {          
             var order = _service.Order.GetOrderByCustomerID(customerId);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (order.Success == false)
+            {
+                return BadRequest(order);
+            }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ServiceResponse<object>(false));
+            }
+         
             return Ok(order);
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(Order))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public IActionResult GetOrderByHostID(Guid hostId)
-        {
-            if (hostId == Guid.Empty)
-            {
-                return BadRequest(ModelState);
-            }
+        {           
             var order = _service.Order.GetOrderByHostID(hostId);
 
+            if (order.Success == false)
+            {
+                return Conflict(order);
+            }
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ServiceResponse<object>(false));
 
             return Ok(order);
         }
@@ -59,9 +63,15 @@ namespace BirthdayPartyBooking.Controller
         [HttpPost("[action]")]
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
-        public IActionResult Booking(Guid customerId, Guid hostId, DateTime dateBooking, string note, [FromBody] BookingRequest bookingRequest)
+        public IActionResult Booking([FromBody] BookingRequest bookingRequest)
         {
-            var booking = _service.Order.Booking(customerId, hostId, dateBooking, note, bookingRequest.place, bookingRequest.serviceRequests);
+            var booking = _service.Order.Booking(bookingRequest.customerId, bookingRequest.hostId, bookingRequest.dateBooking, bookingRequest.note, bookingRequest.place, bookingRequest.serviceRequests);
+            
+            if (booking.Success == false)
+            {
+                return BadRequest(booking);
+            }
+
             return Ok(booking);
         }
 
@@ -70,23 +80,20 @@ namespace BirthdayPartyBooking.Controller
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public IActionResult UpdateOrder(Guid orderId, int status)
-        {
-            if (orderId == Guid.Empty)
+        {                     
+            var checkOrders = _service.Order.UpdateOrderStatus(orderId, status);    
+            
+            if(checkOrders.Success == false)
             {
-                return BadRequest(ModelState);
+                return BadRequest(checkOrders);
             }
-           
-            var checkOrders = _service.Order.GetOrderByOrderID(orderId);    
 
-            if (checkOrders==null)
-            {
-                return NotFound();
-            }
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            checkOrders.Status = status;
-            _service.Order.Update(checkOrders);
-            return Ok("Successfully updated");
+            {
+                return BadRequest(new ServiceResponse<object>(false));
+            }
+ 
+            return Ok(checkOrders);
         }
 
         [HttpPut("[action]/{orderId}")]
@@ -95,22 +102,15 @@ namespace BirthdayPartyBooking.Controller
         [ProducesResponseType(404)]
         public IActionResult CancelOrder(Guid orderId)
         {
-            if (orderId == Guid.Empty)
+            var cancelOrder = _service.Order.CancelOrder(orderId);
+            if (cancelOrder.Success == false)
             {
-                return BadRequest(ModelState);
-            }
-
-            var checkOrders = _service.Order.GetOrderByOrderID(orderId);
-
-            if (checkOrders==null)
-            {
-                return NotFound();
+                return BadRequest(cancelOrder);
             }
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            checkOrders.Status = 3;
-            _service.Order.Update(checkOrders);
-            return Ok("Successfully updated");
+                return BadRequest(new ServiceResponse<object>(false));
+            
+            return Ok(cancelOrder);
         }
 
     }
