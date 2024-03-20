@@ -17,6 +17,7 @@ using Services;
 using Services.Impl;
 using System;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -34,6 +35,26 @@ namespace BirthdayPartyBooking
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvcCore().ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(e => e.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                    return new BadRequestObjectResult(new ServiceResponse<object>
+                    {
+                        Success = false,
+                        Message = "One or more validation errors occurred.",
+                        Errors = errors
+                    });
+                };
+            });
+
             services.AddAutoMapper(typeof(MyAutoMapper));
 
             services.AddRouting(options => options.LowercaseUrls = true);
@@ -45,10 +66,9 @@ namespace BirthdayPartyBooking
                     policy =>
                     {
                         policy
-                        .AllowAnyOrigin()
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
-
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                     });
             });
 
@@ -97,10 +117,18 @@ namespace BirthdayPartyBooking
                     }
                 });
             });
-            services.AddControllers().AddJsonOptions(x =>
+            services.AddControllers().AddJsonOptions(options =>
             {
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+            }); 
+            
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
+
             services.AddDbContext<BirthdayPartyBookingContext>();
 
             services.AddScoped<IRepoWrapper, RepoWrapper>();
@@ -132,9 +160,9 @@ namespace BirthdayPartyBooking
 
             app.UseHttpsRedirection();
 
-            app.UseCors("_myAllowSpecificOrigins");
-
             app.UseRouting();
+
+            app.UseCors("_myAllowSpecificOrigins");
 
             app.UseAuthentication();
 
