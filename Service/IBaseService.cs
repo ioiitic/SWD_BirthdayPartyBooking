@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessObject.DTO.ResponseDTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,8 +15,8 @@ namespace Services
         IEnumerable<T> GetAll(Expression<Func<T, bool>> filter);
         IEnumerable<T> GetAll(Expression<Func<T, bool>> filter, string[] children);
         T GetById(object id);
-        void Insert(T obj);
-        void Update(T obj);
+        ServiceResponse<object> Insert(T obj);
+        ServiceResponse<object> Update(T obj);
         void Delete(object id);
     }
 }

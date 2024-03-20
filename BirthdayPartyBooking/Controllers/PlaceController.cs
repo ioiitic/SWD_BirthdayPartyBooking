@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Services.Impl;
 using BusinessObject.DTO.ResponseDTO;
+using BusinessObject.DTO.PlaceDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
@@ -38,27 +39,25 @@ namespace BirthdayPartyBooking.Controllers
         [HttpPost("[action]")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreatePlace(Guid hostID, [FromBody] Place place)
+        public IActionResult CreatePlace([FromBody] PlaceCreateDTO place)
         {
-            if (place == null || hostID == Guid.Empty)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            place.DeleteFlag = 0;
-            place.HostId = hostID;
             try
             {
-                _service.Place.Insert(place);
+                if (place == null || place.HostId == Guid.Empty)
+                {
+                    return BadRequest(new ServiceResponse<object>(false, "Id Or Object is null"));
+                }
+
+                if (!ModelState.IsValid)
+                    return BadRequest(new ServiceResponse<object>(false));
+                var newPlace = _service.Place.CreatePlace(place);
+
+                return Ok(newPlace);
             }
             catch
             {
-                return BadRequest(ModelState);
+                return StatusCode(500);
             }
-            return Ok("Successfully created");
         }
 
         [HttpPut("[action]/{placeId}")]

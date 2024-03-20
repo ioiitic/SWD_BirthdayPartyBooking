@@ -20,6 +20,8 @@ namespace BusinessObject
         public string Password { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public string Description { get; set; }
+        public int? Status { get; set; }
         public int? Role { get; set; }
         public int? DeleteFlag { get; set; }
 

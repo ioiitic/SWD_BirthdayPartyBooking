@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Net;
+using BusinessObject.DTO.ResponseDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
@@ -22,15 +24,19 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(OrderDetail))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public IActionResult GetOrderDetail(Guid orderId)
         {
             var orderDetail = _service.OrderDetail.GetOrderDetailByOrderID(orderId);
-
+            if(orderDetail.Success == false)
+            {
+                return BadRequest(orderDetail);
+            }
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
+            {
+                return BadRequest(new ServiceResponse<object>(false));
+            }
             return Ok(orderDetail);
         }
     }

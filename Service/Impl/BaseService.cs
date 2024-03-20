@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObject.DTO.ResponseDTO;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -27,10 +28,17 @@ namespace Services.Impl
 
         public T GetById(object id) => _repoWrapper.GetRepository<T>().GetById(id);
 
-        public void Insert(T obj) => _repoWrapper.GetRepository<T>().Insert(obj);
+        public ServiceResponse<object> Insert(T obj)
+        {
+            _repoWrapper.GetRepository<T>().Insert(obj);
 
-        public void Update(T obj) => _repoWrapper.GetRepository<T>().Update(obj);
-
+            return new ServiceResponse<object>(true, "Insert successfully.");
+        }
+        public ServiceResponse<object> Update(T obj)
+        {
+            _repoWrapper.GetRepository<T>().Update(obj);
+            return new ServiceResponse<object>(true, "Update successfully.");
+        }
         public void Delete(object id) => _repoWrapper.GetRepository<T>().Delete(id);
     }
 }

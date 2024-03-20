@@ -62,6 +62,12 @@ namespace BusinessObject
                     .HasMaxLength(100)
                     .HasColumnName("PASSWORD");
 
+                entity.Property(e => e.Description)
+                    .HasMaxLength(100)
+                    .HasColumnName("DESCRIPTION");
+
+                entity.Property(e => e.Status).HasColumnName("Status");
+
                 entity.Property(e => e.Phone)
                     .HasMaxLength(10)
                     .HasColumnName("PHONE")

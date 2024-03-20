@@ -1,4 +1,5 @@
 ﻿using BusinessObject;
+using BusinessObject.DTO.ResponseDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Services
 {
     public interface IOrderDetailService : IBaseService<OrderDetail>
     {
-        List<OrderDetail> GetOrderDetailByOrderID(Guid id);
+        ServiceResponse<List<OrderDetail>> GetOrderDetailByOrderID(Guid id);
     }
 }

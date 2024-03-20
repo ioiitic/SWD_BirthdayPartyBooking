@@ -17,6 +17,22 @@ namespace Services.Impl
         {
         }
 
+        public ServiceResponse<object> CreatePlace(PlaceCreateDTO place)
+        {
+            var newPlace = _mapper.Map<Place>(place);
+            newPlace.DeleteFlag = 0;
+            try
+            {
+                _repoWrapper.Place.Insert(newPlace);
+            }
+            catch
+            {
+                return new ServiceResponse<object>(false, "Something wrong when create");
+            }
+
+            return new ServiceResponse<object>(true, "Create successfully.");
+        }
+
         public List<Place> GetAllPlace(Guid Id) => _repoWrapper.Place.GetAllPlace(Id);
 
         public ServiceResponse<IEnumerable<object>> GetAllPlaceByHostID(Guid Id)

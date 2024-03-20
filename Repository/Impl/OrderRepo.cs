@@ -60,7 +60,7 @@ namespace Repository.Impl
             bool check = false;
             try
             {
-                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == Id && o.PlaceId == order.PlaceId);
+                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == Id && o.PlaceId == order.PlaceId && o.Status != 6);
             }
             catch (Exception ex)
             {
