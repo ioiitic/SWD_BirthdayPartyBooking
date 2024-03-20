@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject;
+using BusinessObject.DTO.ResponseDTO;
+using BusinessObject.DTO.ServiceDTO;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -20,8 +22,16 @@ namespace Services.Impl
 
         public List<ServiceType> GetAllServiceTypes() => _repoWrapper.Service.GetAllServiceTypes();
 
-        public IEnumerable<Object> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType) => _repoWrapper.Service.GetServiceByHostIDAndServiceType(hostId, serviceType);
-
+        public ServiceResponse<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType)
+        {
+            var listservice =  _repoWrapper.Service.GetServiceByHostIDAndServiceType(hostId, serviceType);
+            if (hostId == Guid.Empty || serviceType == null)
+            {
+                return new ServiceResponse<IEnumerable<Object>>(false, "Host ID is null");
+            }
+           
+            return new ServiceResponse<IEnumerable<Object>>(listservice) ;
+        }
         public Service GetServiceByServiceID(Guid Id) => _repoWrapper.Service.GetServiceByServiceID(Id);
 
         public Service GetServiceByServiceIDAndHostID(Guid Id, string HostID) => _repoWrapper.Service.GetServiceByServiceIDAndHostID(Id, HostID);

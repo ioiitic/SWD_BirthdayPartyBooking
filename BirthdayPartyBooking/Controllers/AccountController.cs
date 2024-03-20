@@ -18,7 +18,7 @@ namespace BirthdayPartyBooking.Controllers
     {
         private IServiceWrapper _service;
 
-        public AccountController(IServiceWrapper service, IAccountService accountService)
+        public AccountController(IServiceWrapper service)
         {
             _service = service;
         }
@@ -59,14 +59,6 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<Account> GetAllAccounts()
-        {
-            var accounts = _service.Account.GetAll();
-
-            return accounts;
-        }
-
-        [HttpGet("[action]")]
         [ProducesResponseType(200, Type = typeof(Account))]
         [ProducesResponseType(400)]
         public IActionResult GetAccount(Guid Id)
@@ -74,12 +66,7 @@ namespace BirthdayPartyBooking.Controllers
             var claimsIdentity = this.User.Identity as ClaimsIdentity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.Name)?.Value;
 
-            var accounts = _service.Account.GetById(Id);
-
-            if (accounts.DeleteFlag != 0)
-            {
-                return NotFound();
-            }
+            var accounts = _service.Account.GetAccountById(Id);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -102,7 +89,7 @@ namespace BirthdayPartyBooking.Controllers
                 return BadRequest(ModelState);
             }
             var checkAccounts = _service.Account.GetAccountById(accountId);
-            if (checkAccounts==null || checkAccounts.DeleteFlag != 0)
+            if (checkAccounts==null)
             {
                 return NotFound();
             }

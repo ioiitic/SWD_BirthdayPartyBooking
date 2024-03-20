@@ -15,6 +15,6 @@ namespace Services
         Task<ServiceResponse<Object>> SignUp(SignUpRequest signUpRequest);
         List<Account> GetAllActiveHosts();
         bool Remove(Guid Id);
-        Account GetAccountById(Guid Id);
+        ServiceResponse<Account> GetAccountById(Guid Id);
     }
 }

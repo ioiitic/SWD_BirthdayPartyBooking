@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO.AccountDTO;
+using BusinessObject.DTO.PlaceDTO;
 using BusinessObject.DTO.RequestDTO;
+using BusinessObject.DTO.ResponseDTO;
+using BusinessObject.DTO.ServiceDTO;
 
 namespace BusinessObject.DTO
 {
@@ -10,6 +13,8 @@ namespace BusinessObject.DTO
         {
             CreateMap<Account, SignInDTO>();
             CreateMap<SignUpRequest, Account>().ForMember(des => des.DeleteFlag, opt => opt.MapFrom(src => 0));
+            CreateMap<Service, ServiceResponseDTO>();
+            CreateMap<Place, PlaceView>();
         }
     }
 }

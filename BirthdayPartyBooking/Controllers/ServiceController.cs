@@ -6,11 +6,12 @@ using System;
 using System.Threading.Tasks;
 using Services.Impl;
 using System.Security.Principal;
+using BusinessObject.DTO.ResponseDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class ServiceController : ControllerBase
     {
         private IServiceWrapper _service;
@@ -21,18 +22,19 @@ namespace BirthdayPartyBooking.Controllers
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(Service))]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetServiceByType(Guid hostId, string ServiceType)
         {
-            if (ServiceType==null)
-            {
-                return NotFound();
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(new ServiceResponse<object>(false, "Moi"));
+
             var services = _service.Service.GetServiceByHostIDAndServiceType(hostId, ServiceType);
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (services.Success == false)
+            {
+                return NotFound(services);
+            }
 
             return Ok(services);
         }

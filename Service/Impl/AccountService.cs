@@ -45,8 +45,13 @@ namespace Services.Impl
             return new ServiceResponse<object>(true, "Sign up successfully");
         }
 
-        public Account GetAccountById(Guid Id) => _repoWrapper.Account.GetAccountById(Id);
-
+        public ServiceResponse<Account> GetAccountById(Guid Id)
+        {
+            var account = _repoWrapper.Account.GetAccountById(Id);
+            if (account == null||account.DeleteFlag != 0)
+                return new ServiceResponse<Account>(false, "Not found");
+            return new ServiceResponse<Account>(account);
+        }
         public List<Account> GetAllActiveHosts()=> _repoWrapper.Account.GetAllActiveHosts();
 
         public bool Remove(Guid Id) => _repoWrapper.Account.Remove(Id);

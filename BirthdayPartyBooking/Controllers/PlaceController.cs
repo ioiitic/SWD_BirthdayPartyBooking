@@ -5,32 +5,32 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Services.Impl;
+using BusinessObject.DTO.ResponseDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/")]
     public class PlaceController : ControllerBase
     {
         private IServiceWrapper _service;
-        private IPlaceService _placeService;
 
-        public PlaceController(IServiceWrapper service, IPlaceService placeService)
+        public PlaceController(IServiceWrapper service)
         {
             _service = service;
-            _placeService = placeService;
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200, Type = typeof(Place))]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetPlace(Guid Id)
         {
 
-            var places = _placeService.GetAllPlaceByHostID(Id);
-
+            var places = _service.Place.GetAllPlaceByHostID(Id);
+            if (places.Success == false)
+                return BadRequest(places);
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ServiceResponse<object>(false, "Moi"));
 
             return Ok(places);
         }
@@ -75,7 +75,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkplaces = _placeService.GetPlaceByPlaceID(placeId);
+            var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
             if (checkplaces==null)
             {
                 return NotFound();
@@ -97,7 +97,7 @@ namespace BirthdayPartyBooking.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var checkplaces = _placeService.GetPlaceByPlaceID(placeId);
+            var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
             if (checkplaces==null)
             {
                 return NotFound();
@@ -106,7 +106,7 @@ namespace BirthdayPartyBooking.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _placeService.Remove(placeId);
+            _service.Place.Remove(placeId);
             return Ok("Successfully updated");
         }
 
