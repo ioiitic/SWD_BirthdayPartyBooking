@@ -26,14 +26,20 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetPlace(Guid Id)
         {
+            try
+            {
+                var places = _service.Place.GetAllPlaceByHostID(Id);
+                if (places.Success == false)
+                    return BadRequest(places);
+                if (!ModelState.IsValid)
+                    return BadRequest(new ServiceResponse<object>(false, "Moi"));
 
-            var places = _service.Place.GetAllPlaceByHostID(Id);
-            if (places.Success == false)
-                return BadRequest(places);
-            if (!ModelState.IsValid)
-                return BadRequest(new ServiceResponse<object>(false, "Moi"));
-
-            return Ok(places);
+                return Ok(places);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPost("[action]")]
@@ -60,30 +66,30 @@ namespace BirthdayPartyBooking.Controllers
             }
         }
 
-        [HttpPut("[action]/{placeId}")]
+        [HttpPut("[action]")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdatePlace(Guid placeId, [FromBody] Place place)
+        public IActionResult UpdatePlace([FromBody] PlaceView place)
         {
-            if (place == null)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            if (placeId != place.Id)
-            {
-                return BadRequest(ModelState);
-            }
-            var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
-            if (checkplaces==null)
-            {
-                return NotFound();
-            }
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                var update = _service.Place.UpdatePlace(place);
+                if (update.Success == false)
+                {
+                    return BadRequest(update);
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ServiceResponse<object>(false));
+                }
 
-            _service.Place.Update(place);
-            return Ok("Successfully updated");
+                return Ok(update);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpDelete("[action]/{placeId}")]
@@ -92,21 +98,26 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(404)]
         public IActionResult DeletePlace(Guid placeId)
         {
-            if (placeId == Guid.Empty)
+            try
             {
-                return BadRequest(ModelState);
+                var delete = _service.Place.Remove(placeId);
+
+                if (delete.Success == false)
+                {
+                    return BadRequest(delete);
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ServiceResponse<object>(false));
+                }
+
+                return Ok(delete);
             }
-            var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
-            if (checkplaces==null)
+            catch
             {
-                return NotFound();
+                return StatusCode(500);
             }
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            _service.Place.Remove(placeId);
-            return Ok("Successfully updated");
         }
 
 

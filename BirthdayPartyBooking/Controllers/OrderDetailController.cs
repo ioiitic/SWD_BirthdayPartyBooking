@@ -15,12 +15,10 @@ namespace BirthdayPartyBooking.Controllers
     public class OrderDetailController : ControllerBase
     {
         private IServiceWrapper _service;
-        private IOrderDetailService _orderDetailService;
 
-        public OrderDetailController(IServiceWrapper service, IOrderDetailService orderDetailService)
+        public OrderDetailController(IServiceWrapper service)
         {
             _service = service;
-            _orderDetailService= orderDetailService;
         }
 
         [HttpGet("[action]")]
@@ -28,16 +26,23 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType((int)HttpStatusCode.Conflict)]
         public IActionResult GetOrderDetail(Guid orderId)
         {
-            var orderDetail = _service.OrderDetail.GetOrderDetailByOrderID(orderId);
-            if(orderDetail.Success == false)
+            try
             {
-                return BadRequest(orderDetail);
+                var orderDetail = _service.OrderDetail.GetOrderDetailByOrderID(orderId);
+                if (orderDetail.Success == false)
+                {
+                    return BadRequest(orderDetail);
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ServiceResponse<object>(false));
+                }
+                return Ok(orderDetail);
             }
-            if (!ModelState.IsValid)
+            catch
             {
-                return BadRequest(new ServiceResponse<object>(false));
+                return StatusCode(500);
             }
-            return Ok(orderDetail);
         }
     }
 }

@@ -55,12 +55,12 @@ namespace Repository.Impl
             return orders;
         }
 
-        public bool CheckOrderExist(Order order, Guid Id)
+        public bool CheckOrderExist(Order order)
         {
             bool check = false;
             try
             {
-                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == Id && o.PlaceId == order.PlaceId && o.Status != 6);
+                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.PlaceId == order.PlaceId && o.Status != 6);
             }
             catch (Exception ex)
             {

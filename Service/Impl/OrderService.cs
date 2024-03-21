@@ -18,44 +18,48 @@ namespace Services.Impl
         {
         }
 
-        public ServiceResponse<object> Booking(Guid customerId, Guid hostId, DateTime dateBooking, string note, PlaceView place, List<BookingServiceRequest> serviceRequest)
+        public ServiceResponse<object> Booking(BookingRequest bookingRequest)
         {
-            if (customerId == Guid.Empty || hostId == Guid.Empty)
+            if (bookingRequest.customerId == Guid.Empty ||bookingRequest.hostId == Guid.Empty)
             {
                 return new ServiceResponse<object>(false, "Id is null.");
             }
-            if (place == null||serviceRequest == null)
+            if (bookingRequest.place == null||bookingRequest.serviceRequests == null)
             {
                 return new ServiceResponse<object>(false, "Object is null.");
             }
-            if(dateBooking > DateTime.Now.AddYears(1))
+            if(bookingRequest.dateBooking > DateTime.Now.AddYears(1))
             {
                 return new ServiceResponse<object>(false, "Date is to far.");
 
             }
-            else if(dateBooking < DateTime.Now.AddDays(2))
+            else if(bookingRequest.dateBooking < DateTime.Now.AddDays(2))
             {
                 return new ServiceResponse<object>(false, "Date must be booked 2 days early.");
             }
-            int? totalPrice = place.Price;
+            int? totalPrice = bookingRequest.place.Price;
             Order newBooking = new Order
             {
-                GuestId = customerId,
-                HostId = hostId,
-                PlaceId = place.Id,
-                Date = dateBooking,
+                GuestId = bookingRequest.customerId,
+                HostId = bookingRequest.hostId,
+                PlaceId = bookingRequest.place.Id,
+                Date = bookingRequest.dateBooking,
                 OrderDate = DateTime.Now,
-                Note = note,
+                Note = bookingRequest.note,
                 DeleteFlag = 0,
                 Status = 0
             };
-            _repoWrapper.Order.Insert(newBooking);
-            var checkExist = _repoWrapper.Order.CheckOrderExist(newBooking, hostId);
+            
+            var checkExist = _repoWrapper.Order.CheckOrderExist(newBooking);
+
             if (checkExist)
             {
                 return new ServiceResponse<object>(false, "Booking is overlap.");
             }
-            foreach(var item in serviceRequest)
+
+            _repoWrapper.Order.Insert(newBooking);
+
+            foreach (var item in bookingRequest.serviceRequests)
             {
                 var getService = _repoWrapper.Service.GetServiceByServiceID(item.Id);
                 OrderDetail newDetail = new OrderDetail
@@ -93,7 +97,7 @@ namespace Services.Impl
             return new ServiceResponse<object>(true, "Cancel successfully");
         }
 
-        public bool CheckOrderExist(Order order, Guid Id) => _repoWrapper.Order.CheckOrderExist(order, Id);
+        public bool CheckOrderExist(Order order) => _repoWrapper.Order.CheckOrderExist(order);
 
         public ServiceResponse<List<Order>> GetOrderByCustomerID(Guid id)
         {

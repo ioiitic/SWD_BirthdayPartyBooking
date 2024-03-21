@@ -50,6 +50,37 @@ namespace Services.Impl
         }
         public Place GetPlaceByPlaceID(Guid placeId) => _repoWrapper.Place.GetPlaceByPlaceID(placeId);
 
-        public bool Remove(Guid Id) => _repoWrapper.Place.Remove(Id);
+        public ServiceResponse<object> Remove(Guid Id)
+        {
+            if (Id == Guid.Empty)
+            {
+                return new ServiceResponse<object>(false, "Id is null");
+            }
+            var checkplaces = _repoWrapper.Place.GetPlaceByPlaceID(Id);
+            if (checkplaces==null)
+            {
+                return new ServiceResponse<object>(false, "Invalid data");
+            }
+
+            _repoWrapper.Place.Remove(Id);
+            return new ServiceResponse<object>(true, "Delete Successfully.");
+        }
+        public ServiceResponse<object> UpdatePlace(PlaceView place)
+        {
+            if (place.Id == Guid.Empty || place == null)
+            {
+                return new ServiceResponse<object>(false, "Invalid data");
+            }
+
+            var checkplaces = _repoWrapper.Place.GetPlaceByPlaceID(place.Id);
+
+            if (checkplaces == null)
+            {
+                return new ServiceResponse<object>(false, "Not found");
+            }
+            checkplaces = _mapper.Map(place, checkplaces);
+            _repoWrapper.Place.Update(checkplaces);
+            return new ServiceResponse<object>(true, "Update successfully.");
+        }
     }
 }

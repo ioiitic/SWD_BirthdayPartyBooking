@@ -15,9 +15,9 @@ namespace Services
         ServiceResponse<List<Order>> GetOrderByHostID(Guid id);
         ServiceResponse<List<Order>> GetOrderByCustomerID(Guid id);
         Order GetOrderByOrderID(Guid id);
-        bool CheckOrderExist(Order order, Guid Id);
+        bool CheckOrderExist(Order order);
         bool Remove(Guid Id);
-        ServiceResponse<object> Booking(Guid customerId, Guid hostId, DateTime dateBooking, string note, PlaceView place, List<BookingServiceRequest> serviceRequest);
+        ServiceResponse<object> Booking(BookingRequest bookingRequest);
         ServiceResponse<object> CancelOrder(Guid Id);
         ServiceResponse<object> UpdateOrderStatus(Guid Id, int Status);
     }

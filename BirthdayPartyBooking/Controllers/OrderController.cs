@@ -65,7 +65,7 @@ namespace BirthdayPartyBooking.Controller
         [ProducesResponseType((int)HttpStatusCode.Created)]
         public IActionResult Booking([FromBody] BookingRequest bookingRequest)
         {
-            var booking = _service.Order.Booking(bookingRequest.customerId, bookingRequest.hostId, bookingRequest.dateBooking, bookingRequest.note, bookingRequest.place, bookingRequest.serviceRequests);
+            var booking = _service.Order.Booking(bookingRequest);
             
             if (booking.Success == false)
             {

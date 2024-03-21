@@ -48,14 +48,21 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType((int) HttpStatusCode.Created)]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequest signUpRequest)
         {
-            var signUpResponse = await _service.Account.SignUp(signUpRequest);
-            
-            if (signUpResponse.Success == false)
+            try
             {
-                return Conflict(signUpResponse);
-            }
+                var signUpResponse = await _service.Account.SignUp(signUpRequest);
 
-            return Created("auth/[action]", signUpResponse);
+                if (signUpResponse.Success == false)
+                {
+                    return Conflict(signUpResponse);
+                }
+
+                return Created("auth/[action]", signUpResponse);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("[action]")]
@@ -63,15 +70,22 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetAccount(Guid Id)
         {
-            var claimsIdentity = this.User.Identity as ClaimsIdentity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.Name)?.Value;
+            try
+            {
+                var claimsIdentity = this.User.Identity as ClaimsIdentity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.Name)?.Value;
 
-            var accounts = _service.Account.GetAccountById(Id);
+                var accounts = _service.Account.GetAccountById(Id);
 
-            if (!ModelState.IsValid)
-                return BadRequest(new ServiceResponse<object>(false,""));
+                if (!ModelState.IsValid)
+                    return BadRequest(new ServiceResponse<object>(false, ""));
 
-            return Ok(accounts);
+                return Ok(accounts);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("[action]")]
@@ -79,13 +93,20 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetAllHost()
         {
-            var accounts = _service.Account.GetAllHost();
-
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(new ServiceResponse<object>(false));
+                var accounts = _service.Account.GetAllHost();
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ServiceResponse<object>(false));
+                }
+                return Ok(accounts);
             }
-            return Ok(accounts);
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPut("[action]/{accountId}")]

@@ -15,6 +15,7 @@ namespace Services
         ServiceResponse<IEnumerable<object>> GetAllPlaceByHostID(Guid Id);
         Place GetPlaceByPlaceID(Guid placeId);
         ServiceResponse<object> CreatePlace(PlaceCreateDTO place);
-        bool Remove(Guid Id);
+        ServiceResponse<object> UpdatePlace(PlaceView place);
+        ServiceResponse<object> Remove(Guid Id);
     }
 }

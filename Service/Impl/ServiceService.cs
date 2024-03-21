@@ -42,6 +42,40 @@ namespace Services.Impl
 
         public List<Service> GetValidServices(Guid Id) => _repoWrapper.Service.GetValidServices(Id);
 
-        public bool Remove(Guid Id) => _repoWrapper.Service.Remove(Id);
+        public ServiceResponse<object> Remove(Guid Id)
+        {
+            if (Id == Guid.Empty)
+            {
+                return new ServiceResponse<object>(false, "Id is null");
+            }
+
+            var checkpService = _repoWrapper.Service.GetServiceByServiceID(Id);
+            
+            if (checkpService == null)
+            {
+                return new ServiceResponse<object>(false, "Invalid data");
+            }
+
+            _repoWrapper.Service.Remove(Id);
+
+            return new ServiceResponse<object>(true, "Delete Successfully.");
+        }
+        public ServiceResponse<object> UpdateService(ServiceResponseDTO service)
+        {
+            if (service.Id == Guid.Empty || service == null)
+            {
+                return new ServiceResponse<object>(false, "Invalid data");
+            }
+
+            var checkservice = _repoWrapper.Service.GetServiceByServiceID(service.Id);
+
+            if (checkservice == null)
+            {
+                return new ServiceResponse<object>(false, "Not found");
+            }
+            checkservice = _mapper.Map(service, checkservice);
+            _repoWrapper.Service.Update(checkservice);
+            return new ServiceResponse<object>(true, "Update successfully.");
+        }
     }
 }
