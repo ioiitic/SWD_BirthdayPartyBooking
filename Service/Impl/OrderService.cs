@@ -18,59 +18,59 @@ namespace Services.Impl
         {
         }
 
-        public ServiceResponse<object> Booking(Guid customerId, Guid hostId, DateTime dateBooking, string note, PlaceView place, List<BookingServiceRequest> serviceRequest)
+        public ServiceResponse<object> Booking(BookingRequest bookingRequest)
         {
-            if (customerId == Guid.Empty || hostId == Guid.Empty)
-            {
-                return new ServiceResponse<object>(false, "Id is null.");
-            }
-            if (place == null||serviceRequest == null)
-            {
-                return new ServiceResponse<object>(false, "Object is null.");
-            }
-            if(dateBooking > DateTime.Now.AddYears(1))
-            {
-                return new ServiceResponse<object>(false, "Date is to far.");
+            //if (customerId == Guid.Empty || hostId == Guid.Empty)
+            //{
+            //    return new ServiceResponse<object>(false, "Id is null.");
+            //}
+            //if (place == null||serviceRequest == null)
+            //{
+            //    return new ServiceResponse<object>(false, "Object is null.");
+            //}
+            //if(dateBooking > DateTime.Now.AddYears(1))
+            //{
+            //    return new ServiceResponse<object>(false, "Date is to far.");
+            //}
+            //else if(dateBooking < DateTime.Now.AddDays(2))
+            //{
+            //    return new ServiceResponse<object>(false, "Date must be booked 2 days early.");
+            //}
 
-            }
-            else if(dateBooking < DateTime.Now.AddDays(2))
-            {
-                return new ServiceResponse<object>(false, "Date must be booked 2 days early.");
-            }
-            int? totalPrice = place.Price;
-            Order newBooking = new Order
-            {
-                GuestId = customerId,
-                HostId = hostId,
-                PlaceId = place.Id,
-                Date = dateBooking,
-                OrderDate = DateTime.Now,
-                Note = note,
-                DeleteFlag = 0,
-                Status = 0
-            };
-            _repoWrapper.Order.Insert(newBooking);
-            var checkExist = _repoWrapper.Order.CheckOrderExist(newBooking, hostId);
+            Order newBooking = _mapper.Map<Order>(bookingRequest);
+            //    = new Order
+            //{
+            //    GuestId = customerId,
+            //    HostId = hostId,
+            //    PlaceId = place.Id,
+            //    Date = dateBooking,
+            //    OrderDate = DateTime.Now,
+            //    Note = note,
+            //    DeleteFlag = 0,
+            //    Status = 0
+            //};
+
+            var checkExist = _repoWrapper.Order.CheckOrderExist(newBooking);
+
             if (checkExist)
             {
                 return new ServiceResponse<object>(false, "Booking is overlap.");
             }
-            foreach(var item in serviceRequest)
+
+            _repoWrapper.Order.Insert(newBooking);
+
+            foreach (var item in bookingRequest.ServiceRequests)
             {
                 var getService = _repoWrapper.Service.GetServiceByServiceID(item.Id);
                 OrderDetail newDetail = new OrderDetail
                 {
-                    Price = getService.Price,
+                    Price = getService.Price*item.Quantity,
                     ServiceId = item.Id,
                     OrderId = newBooking.Id,
                     Number = item.Quantity
                 };
-                totalPrice += newDetail.Price;
                 _repoWrapper.OrderDetail.Insert(newDetail);
             }
-
-            newBooking.TotalPrice = totalPrice;
-            _repoWrapper.Order.Update(newBooking);
             return new ServiceResponse<object>(true, "Booking successfully.");
         }
 
@@ -82,36 +82,43 @@ namespace Services.Impl
             {
                 return new ServiceResponse<object>(false, "Order NotFound");
             }
-            if(Id == Guid.Empty)
-            {
-                return new ServiceResponse<object>(false, "Id is null");
-            }
-            
+
             checkOrders.Status = 6;
             _repoWrapper.Order.Update(checkOrders);
 
             return new ServiceResponse<object>(true, "Cancel successfully");
         }
 
-        public bool CheckOrderExist(Order order, Guid Id) => _repoWrapper.Order.CheckOrderExist(order, Id);
+        public bool CheckOrderExist(Order order) => _repoWrapper.Order.CheckOrderExist(order);
 
-        public ServiceResponse<List<Order>> GetOrderByCustomerID(Guid id)
+        public ServiceResponse<List<OrderResponse>> GetOrderByCustomerID(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return new ServiceResponse<List<Order>>(false, "Id is null");
+                return new ServiceResponse<List<OrderResponse>>(false, "Id is null");
             }
+
             var listOrder = _repoWrapper.Order.GetOrderByCustomerID(id);
-            return new ServiceResponse<List<Order>>(listOrder);
+            var listOrderResponse = listOrder
+                .Select(order => _mapper.Map<OrderResponse>(order))
+                .ToList();
+
+            return new ServiceResponse<List<OrderResponse>>(listOrderResponse);
         }
-        public ServiceResponse<List<Order>> GetOrderByHostID(Guid id)
+
+        public ServiceResponse<List<OrderResponse>> GetOrderByHostID(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return new ServiceResponse<List<Order>>(false, "Id is null");
+                return new ServiceResponse<List<OrderResponse>>(false, "Id is null");
             }
+
             var listOrder = _repoWrapper.Order.GetOrderByHostID(id);
-            return new ServiceResponse<List<Order>>(listOrder);
+            var listOrderResponse = listOrder
+                .Select(order => _mapper.Map<OrderResponse>(order))
+                .ToList();
+
+            return new ServiceResponse<List<OrderResponse>>(listOrderResponse);
         }
         public Order GetOrderByOrderID(Guid id) => _repoWrapper.Order.GetOrderByOrderID(id);
 

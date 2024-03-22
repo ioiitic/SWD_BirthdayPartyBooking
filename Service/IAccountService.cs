@@ -13,6 +13,7 @@ namespace Services
     {
         Task<ServiceResponse<Object>> SignIn(string Email, string Password);
         Task<ServiceResponse<Object>> SignUp(SignUpRequest signUpRequest);
+        ServiceResponse<object> Update(Guid accountId, AccountUpdateRequest accountUpdateRequest);
         bool Remove(Guid Id);
         ServiceResponse<Account> GetAccountById(Guid Id);
         ServiceResponse<List<Account>> GetAllHost();

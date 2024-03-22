@@ -20,7 +20,7 @@ namespace Repository.Impl
             List<Order> orders;
             try
             {
-                orders =  _context.Orders.AsNoTracking().Where(o => o.HostId == id).ToList();
+                orders =  _context.Orders.AsNoTracking().Where(o => o.HostId == id).Include(o => o.Host).Include(o => o.Place).ToList();
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace Repository.Impl
             List<Order> orders;
             try
             {
-                orders =  _context.Orders.AsNoTracking().Where(o => o.GuestId == id).ToList();
+                orders =  _context.Orders.AsNoTracking().Where(o => o.GuestId == id).Include(o => o.Host).Include(o => o.Place).ToList();
             }
             catch (Exception ex)
             {
@@ -54,13 +54,12 @@ namespace Repository.Impl
             }
             return orders;
         }
-
-        public bool CheckOrderExist(Order order, Guid Id)
+        public bool CheckOrderExist(Order order)
         {
             bool check = false;
             try
             {
-                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == Id && o.PlaceId == order.PlaceId && o.Status != 6);
+                check = _context.Orders.AsNoTracking().Any(o => o.Date == order.Date && o.HostId == order.HostId && o.PlaceId == order.PlaceId && o.Status != 6);
             }
             catch (Exception ex)
             {

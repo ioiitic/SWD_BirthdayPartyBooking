@@ -17,9 +17,10 @@ namespace Services.Impl
             : base(repoWrapper, mapper)
         {
         }
+
         public async Task<ServiceResponse<object>> SignIn(string Email, string Password)
         {
-            var account = await _repoWrapper.Account.CheckLogin(Email, Password);
+            var account = await _repoWrapper.Account.CheckAccountExist(Email, Password);
 
             if (account == null)
             {
@@ -40,10 +41,26 @@ namespace Services.Impl
             {
                 return new ServiceResponse<object>(false, "Duplicate Email!");
             }
+
             var accountSignUp = _mapper.Map<Account>(signUpRequest);
             _repoWrapper.Account.Insert(accountSignUp);
 
             return new ServiceResponse<object>(true, "Sign up successfully");
+        }
+
+        public ServiceResponse<object> Update(Guid accountId, AccountUpdateRequest accountUpdateRequest)
+        {
+            var checkAccounts = _repoWrapper.Account.GetAccountById(accountId);
+
+            if (checkAccounts == null)
+            {
+                return new ServiceResponse<object>(false, "Not found Account");
+            }
+
+            checkAccounts = _mapper.Map(accountUpdateRequest, checkAccounts);
+
+            _repoWrapper.Account.Update(checkAccounts);
+            return new ServiceResponse<object>(true, "Update successfully.");
         }
 
         public ServiceResponse<Account> GetAccountById(Guid Id)

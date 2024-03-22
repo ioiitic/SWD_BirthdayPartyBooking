@@ -63,8 +63,16 @@ namespace BusinessObject
                     .HasColumnName("PASSWORD");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(100)
+                    .HasMaxLength(300)
                     .HasColumnName("DESCRIPTION");
+
+                entity.Property(e => e.ImageURL)
+                    .HasMaxLength(300)
+                    .HasColumnName("IMAGE_URL");
+
+                entity.Property(e => e.ImageBgURL)
+                    .HasMaxLength(300)
+                    .HasColumnName("IMAGE_BG_URL");
 
                 entity.Property(e => e.Status).HasColumnName("Status");
 
@@ -175,6 +183,10 @@ namespace BusinessObject
                     .HasMaxLength(300)
                     .HasColumnName("NAME");
 
+                entity.Property(e => e.ImageURL)
+                    .HasMaxLength(300)
+                    .HasColumnName("IMAGE_URL");
+
                 entity.Property(e => e.Price).HasColumnName("PRICE");
 
                 entity.HasOne(d => d.Host)
@@ -202,6 +214,10 @@ namespace BusinessObject
                 entity.Property(e => e.Name)
                     .HasMaxLength(300)
                     .HasColumnName("NAME");
+
+                entity.Property(e => e.ImageURL)
+                    .HasMaxLength(300)
+                    .HasColumnName("IMAGE_URL");
 
                 entity.Property(e => e.Price).HasColumnName("PRICE");
 

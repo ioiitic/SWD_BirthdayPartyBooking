@@ -16,14 +16,19 @@ namespace Services.Impl
         {
         }
 
-        public ServiceResponse<List<OrderDetail>> GetOrderDetailByOrderID(Guid id)
+        public ServiceResponse<List<OrderDetailResponse>> GetOrderDetailByOrderID(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return new ServiceResponse<List<OrderDetail>>(false, "Id is null.");
+                return new ServiceResponse<List<OrderDetailResponse>>(false, "Id is null.");
             }
+
             var listOrderDetail = _repoWrapper.OrderDetail.GetOrderDetailByOrderID(id);
-            return new ServiceResponse<List<OrderDetail>>(listOrderDetail);
+            var listOrderDeatailResponse = listOrderDetail
+                .Select(orderDetail => _mapper.Map<OrderDetailResponse>(orderDetail))
+                .ToList();
+
+            return new ServiceResponse<List<OrderDetailResponse>>(listOrderDeatailResponse);
         }
     }
 }

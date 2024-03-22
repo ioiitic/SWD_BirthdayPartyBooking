@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Services.Impl;
 using System.Security.Principal;
 using BusinessObject.DTO.ResponseDTO;
+using BusinessObject.DTO.RequestDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
@@ -24,12 +25,12 @@ namespace BirthdayPartyBooking.Controllers
         [HttpGet("[action]")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetServiceByType(Guid hostId, string ServiceType)
+        public IActionResult GetServiceByType(Guid hostId, string serviceType)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ServiceResponse<object>(false, "Moi"));
 
-            var services = _service.Service.GetServiceByHostIDAndServiceType(hostId, ServiceType);
+            var services = _service.Service.GetServiceByHostIDAndServiceType(hostId, serviceType);
 
             if (services.Success == false)
             {
@@ -42,54 +43,71 @@ namespace BirthdayPartyBooking.Controllers
         [HttpPost("[action]")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateService(Guid hostID, Guid serviceTypeId, [FromBody] Service service)
+        public IActionResult CreateService([FromBody] ServiceCreateRequest serviceCreateRequest)
         {
-            if (service == null || hostID == Guid.Empty)
+            var create = _service.Service.Create(serviceCreateRequest);
+
+            if (create.Success == false)
             {
-                return BadRequest(ModelState);
+                return Conflict(create);
             }
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            return Created("auth/[action]", create);
+            //if (service == null || hostID == Guid.Empty)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
-            service.DeleteFlag = 0;
-            service.HostId = hostID;
-            service.ServiceTypeId = serviceTypeId;
-            try
-            {
-                _service.Service.Insert(service);
-            }
-            catch
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok("Successfully created");
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
+
+            //service.DeleteFlag = 0;
+            //service.HostId = hostID;
+            //service.ServiceTypeId = serviceTypeId;
+            //try
+            //{
+            //    _service.Service.Insert(service);
+            //}
+            //catch
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            //return Ok("Successfully created");
         }
 
         [HttpPut("[action]/{serviceId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateService(Guid serviceId, [FromBody] Service service)
+        public IActionResult UpdateService(Guid serviceId, [FromBody] ServiceUpdateRequest serviceUpdateRequest)
         {
-            if (service == null)
-            {
-                return BadRequest(ModelState);
-            }
-            if (serviceId != service.Id)
-            {
-                return BadRequest(ModelState);
-            }
-            var checkservices = _service.Service.GetServiceByServiceID(serviceId);
-            if (checkservices==null)
-            {
-                return NotFound();
-            }
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
-            _service.Service.Update(service);
-            return Ok("Successfully updated");
+            var update = _service.Service.Update(serviceId, serviceUpdateRequest);
+
+            if (update.Success == false)
+            {
+                return NotFound(update);
+            }
+
+            return Ok(update);
+            //    if (service == null)
+            //    {
+            //        return BadRequest(ModelState);
+            //    }
+            //    if (serviceId != service.Id)
+            //    {
+            //        return BadRequest(ModelState);
+            //    }
+            //    var checkservices = _service.Service.GetServiceByServiceID(serviceId);
+            //    if (checkservices==null)
+            //    {
+            //        return NotFound();
+            //    }
+            //    if (!ModelState.IsValid)
+            //        return BadRequest(ModelState);
+
+            //    _service.Service.Update(service);
+            //    return Ok("Successfully updated");
         }
 
         [HttpDelete("[action]/{serviceId}")]

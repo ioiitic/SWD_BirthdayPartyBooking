@@ -9,7 +9,7 @@ namespace Repository
 {
     public interface IAccountRepo : IBaseRepo<Account>
     {
-        Task<Account> CheckLogin(string Email, string Password);
+        Task<Account> CheckAccountExist(string Email, string Password);
         Task<bool> CheckEmailExist(string email);
         List<Account> GetAllActiveHosts();
         bool Remove(Guid Id);

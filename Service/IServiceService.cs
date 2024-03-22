@@ -1,4 +1,6 @@
 ﻿using BusinessObject;
+using BusinessObject.DTO.PlaceDTO;
+using BusinessObject.DTO.RequestDTO;
 using BusinessObject.DTO.ResponseDTO;
 using BusinessObject.DTO.ServiceDTO;
 using System;
@@ -14,6 +16,8 @@ namespace Services
         List<Service> GetValidServices(Guid Id);
         List<Service> GetAllServicesByHostID(string Id);
         List<ServiceType> GetAllServiceTypes();
+        ServiceResponse<object> Create(ServiceCreateRequest serviceCreateRequest);
+        ServiceResponse<object> Update(Guid serviceId, ServiceUpdateRequest serviceUpdateRequest);
         Service GetServiceByServiceIDAndHostID(Guid Id, string HostID);
         ServiceType GetServiceTypeByServiceTypeID(Guid Id);
         ServiceResponse<IEnumerable<Object>> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType);

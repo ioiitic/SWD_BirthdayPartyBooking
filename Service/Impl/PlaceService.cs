@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject;
 using BusinessObject.DTO.PlaceDTO;
+using BusinessObject.DTO.RequestDTO;
 using BusinessObject.DTO.ResponseDTO;
 using Repository;
 using System;
@@ -35,6 +36,21 @@ namespace Services.Impl
 
         public List<Place> GetAllPlace(Guid Id) => _repoWrapper.Place.GetAllPlace(Id);
 
+        public ServiceResponse<object> Update(Guid placeId, PlaceUpdateRequest placeUpdateRequest)
+        {
+            var checkPlace = _repoWrapper.Place.GetPlaceByPlaceID(placeId);
+
+            if (checkPlace == null)
+            {
+                return new ServiceResponse<object>(false, "Not found Account");
+            }
+
+            checkPlace = _mapper.Map(placeUpdateRequest, checkPlace);
+
+            _repoWrapper.Place.Update(checkPlace);
+            return new ServiceResponse<object>(true, "Update successfully.");
+        }
+
         public ServiceResponse<IEnumerable<object>> GetAllPlaceByHostID(Guid Id)
         {
             if(Id == Guid.Empty) 
@@ -48,6 +64,7 @@ namespace Services.Impl
             }
             return new ServiceResponse<IEnumerable<object>>(listPlace);
         }
+
         public Place GetPlaceByPlaceID(Guid placeId) => _repoWrapper.Place.GetPlaceByPlaceID(placeId);
 
         public bool Remove(Guid Id) => _repoWrapper.Place.Remove(Id);

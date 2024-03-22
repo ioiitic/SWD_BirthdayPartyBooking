@@ -10,6 +10,6 @@ namespace Services
 {
     public interface IOrderDetailService : IBaseService<OrderDetail>
     {
-        ServiceResponse<List<OrderDetail>> GetOrderDetailByOrderID(Guid id);
+        ServiceResponse<List<OrderDetailResponse>> GetOrderDetailByOrderID(Guid id);
     }
 }
