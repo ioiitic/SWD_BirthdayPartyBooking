@@ -12,7 +12,7 @@ namespace Repository
         List<Order> GetOrderByHostID(Guid id);
         List<Order> GetOrderByCustomerID(Guid id);
         Order GetOrderByOrderID(Guid id);
-        bool CheckOrderExist(Order order, Guid Id);
+        bool CheckOrderExist(Order order);
         bool Remove(Guid Id);
         bool Save();
     }

@@ -9,11 +9,12 @@ namespace BusinessObject.DTO.RequestDTO
 {
     public class BookingRequest
     {
-        public Guid customerId { get; set; }
-        public Guid hostId { get; set; }
-        public DateTime dateBooking { get; set; }
-        public string note { get; set; }
-        public PlaceView place {  get; set; }
-        public List<BookingServiceRequest> serviceRequests { get; set; }
+        public Guid GuestId { get; set; }
+        public Guid HostId { get; set; }
+        public DateTime Date { get; set; }
+        public string Note { get; set; }
+        public int TotalPrice { get; set; }
+        public Guid PlaceId {  get; set; }
+        public List<BookingServiceRequest> ServiceRequests { get; set; }
     }
 }

@@ -106,11 +106,11 @@ namespace Repository.Impl
             return service;
         }
 
-        public IEnumerable<Object> GetServiceByHostIDAndServiceType(Guid hostId, string serviceTypeId)
+        public IEnumerable<Object> GetServiceByHostIDAndServiceType(Guid hostId, string serviceType)
         {
             try
             {
-                return  _context.Services.Where(s => s.HostId == hostId && s.DeleteFlag == 0 && s.ServiceType.Name == serviceTypeId)
+                return  _context.Services.Where(s => s.HostId == hostId && s.DeleteFlag == 0 && s.ServiceType.Name == serviceType)
                                                 .Select(s => new
                                                 {
                                                     s.Id,

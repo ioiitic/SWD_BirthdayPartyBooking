@@ -14,7 +14,7 @@ namespace Repository.Impl
         {
         }
 
-        public async Task<Account> CheckLogin(string Email, string Password)
+        public async Task<Account> CheckAccountExist(string Email, string Password)
         {
             try
             {
@@ -25,6 +25,7 @@ namespace Repository.Impl
                 throw new Exception($"Error checking login: {ex.Message}", ex);
             }
         }
+
         public async Task<bool> CheckEmailExist(string email)
         {
             try
@@ -48,6 +49,7 @@ namespace Repository.Impl
                 throw new Exception($"Error retrieving all active hosts: {ex.Message}", ex);
             }
         }
+
         public Account GetAccountById(Guid Id)
         {
             try
@@ -59,6 +61,7 @@ namespace Repository.Impl
                 throw new Exception(ex.Message);
             }
         }
+
         public bool Remove(Guid Id)
         {
             try

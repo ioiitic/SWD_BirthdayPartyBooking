@@ -21,8 +21,10 @@ namespace BusinessObject
         public string Name { get; set; }
         public string Phone { get; set; }
         public string Description { get; set; }
+        public string ImageURL { get; set; }
+        public string ImageBgURL { get; set; }
         public int? Status { get; set; }
-        public int? Role { get; set; }
+        public int? Role { get; set; }  
         public int? DeleteFlag { get; set; }
 
         public virtual ICollection<Order> OrderGuests { get; set; }

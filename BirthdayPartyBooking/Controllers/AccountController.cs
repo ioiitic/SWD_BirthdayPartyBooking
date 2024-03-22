@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace BirthdayPartyBooking.Controllers
@@ -29,10 +30,6 @@ namespace BirthdayPartyBooking.Controllers
         [CustomValidationFilter]
         public async Task<IActionResult> SignIn([FromBody] SignInRequest signInRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ServiceResponse<object>(false, "Moi"));
-            }
             var response = await _service.Account.SignIn(signInRequest.Email, signInRequest.Password);
 
             if (response.Success == false)
@@ -92,26 +89,23 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateAccount(Guid accountId, [FromBody] Account account)
+        public IActionResult UpdateAccount(Guid accountId, [FromBody] AccountUpdateRequest accountUpdateRequest)
         {
-            if (account == null)
-            {
-                return BadRequest(ModelState);
-            }
-            if (accountId != account.Id)
-            {
-                return BadRequest(ModelState);
-            }
-            var checkAccounts = _service.Account.GetAccountById(accountId);
+            //if (account == null)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            //if (accountId != account.Id)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            var update = _service.Account.Update(accountId, accountUpdateRequest);
 
-            if (checkAccounts==null)
+            if (update.Success == false)
             {
-                return NotFound(new ServiceResponse<object>(false, "Wrong account"));
+                return NotFound(update);
             }
-            if (!ModelState.IsValid)
-                return BadRequest(new ServiceResponse<object>(false, ""));
 
-            var update  = _service.Account.Update(account);  
             return Ok(update);
         }
     }

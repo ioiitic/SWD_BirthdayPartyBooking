@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Services.Impl;
 using BusinessObject.DTO.ResponseDTO;
 using BusinessObject.DTO.PlaceDTO;
+using BusinessObject.DTO.RequestDTO;
 
 namespace BirthdayPartyBooking.Controllers
 {
@@ -64,26 +65,35 @@ namespace BirthdayPartyBooking.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdatePlace(Guid placeId, [FromBody] Place place)
+        public IActionResult UpdatePlace(Guid placeId, [FromBody] PlaceUpdateRequest placeUpdateRequest)
         {
-            if (place == null)
-            {
-                return BadRequest(ModelState);
-            }
-            if (placeId != place.Id)
-            {
-                return BadRequest(ModelState);
-            }
-            var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
-            if (checkplaces==null)
-            {
-                return NotFound();
-            }
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (place == null)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            //if (placeId != place.Id)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            var update = _service.Place.Update(placeId, placeUpdateRequest);
 
-            _service.Place.Update(place);
-            return Ok("Successfully updated");
+            if (update.Success == false)
+            {
+                return NotFound(update);
+            }
+
+            return Ok(update);
+
+            //var checkplaces = _service.Place.GetPlaceByPlaceID(placeId);
+            //if (checkplaces==null)
+            //{
+            //    return NotFound();
+            //}
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
+
+            //_service.Place.Update(place);
+            //return Ok("Successfully updated");
         }
 
         [HttpDelete("[action]/{placeId}")]
